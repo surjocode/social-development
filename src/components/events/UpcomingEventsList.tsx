@@ -14,7 +14,7 @@ import {
 import Image from "next/image";
 
 type Event = {
-  id: string;
+  _id: string;
   title: string;
   category: string;
   location: string;
@@ -143,7 +143,7 @@ export default function UpcomingEventsList({ events }: Props) {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredEvents.map((event) => (
               <div
-                key={event.id}
+                key={event._id}
                 className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 {/* Image */}
@@ -188,7 +188,7 @@ export default function UpcomingEventsList({ events }: Props) {
                   </div>
 
                   <Link
-                    href={`/events/${event.id}`}
+                    href={`/events/${event._id}`}
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#11998e] py-3 text-sm font-semibold text-white transition hover:bg-[#087f75]"
                   >
                     View Event
