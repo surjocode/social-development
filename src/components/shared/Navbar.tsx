@@ -81,11 +81,8 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   const user = session?.user;
-
-  const profileImage =
-    user?.image && user.image.trim() !== ""
-      ? user.image
-      : "/images/default-avatar.png";
+  console.log("USER IMAGE:", user?.image);
+console.log("USER DATA:", user);
 
   const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
 
@@ -176,10 +173,15 @@ const Navbar = () => {
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-full outline-none">
                 <Avatar className="h-10 w-10 border-2 border-green-700">
                   <AvatarImage
-                    src={user?.image || ""}
+                    src={user?.image || undefined}
                     alt={user?.name || "User"}
+                    
                   />
-                  <AvatarFallback>{userInitial}</AvatarFallback>
+                  
+                  <AvatarFallback className="bg-green-100 font-semibold text-green-800">
+                    {userInitial}
+                  </AvatarFallback>
+                  
                 </Avatar>
 
                 <span className="max-w-28 truncate text-sm font-medium">
@@ -296,10 +298,12 @@ const Navbar = () => {
                     <div className="flex items-center gap-3 px-3">
                       <Avatar className="h-10 w-10 border-2 border-green-700">
                         <AvatarImage
-                          src={profileImage}
-                          alt={user.name || "User"}
+                          src={user?.image || undefined}
+                          alt={user?.name || "User"}
                         />
-                        <AvatarFallback>{userInitial}</AvatarFallback>
+                        <AvatarFallback className="bg-green-100 font-semibold text-green-800">
+                          {userInitial}
+                        </AvatarFallback>
                       </Avatar>
 
                       <div className="min-w-0">

@@ -1,7 +1,11 @@
+
 "use client";
 
 import { useState } from "react";
+import type { FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import {
   HeartHandshake,
   User,
@@ -14,12 +18,15 @@ import {
   Check,
   X,
 } from "lucide-react";
+
 import { authClient } from "@/lib/auth-client";
-import { redirect } from "next/navigation";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
@@ -34,37 +41,52 @@ export default function RegisterPage() {
     { label: "Minimum 6 characters length", valid: hasMinLength },
   ];
 
-  const handleRegister = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const formData = new FormData(e.target);
-    const user = Object.fromEntries(formData.entries()) as {
-      name: string;
-      email: string;
-      password: string;
-      photoURL?: string;
-    };
-
-    const { data, error } = await authClient.signUp.email({
-      ...user,
-    });
-    if (data) {
-      redirect("/")
-    }
-    if (error) {
-      console.log(error);
-    }
 
     if (!hasUppercase || !hasLowercase || !hasMinLength) {
       return;
     }
 
-    // Connect your registration API here.
+    setLoading(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+
+      const user = Object.fromEntries(formData.entries()) as {
+        name: string;
+        email: string;
+        password: string;
+        photoURL: string;
+      };
+
+      const { data, error } = await authClient.signUp.email({
+        name: user.name.trim(),
+        email: user.email.trim(),
+        password: user.password,
+        image: user.photoURL.trim() || undefined,
+      });
+
+      if (error) {
+        console.log("Register Error:", error);
+        return;
+      }
+
+      if (data) {
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      console.log("Registration Failed:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f5f7f9] px-4 py-10">
       <div className="w-full max-w-[420px] rounded-[22px] border border-gray-100 bg-white px-6 py-8 shadow-[0_8px_30px_rgba(0,0,0,0.07)] sm:px-9">
+
         {/* Header */}
         <div className="mb-7 text-center">
           <div className="mx-auto mb-3 flex size-11 items-center justify-center rounded-xl bg-teal-600 text-white shadow-lg shadow-teal-600/20">
@@ -82,6 +104,7 @@ export default function RegisterPage() {
 
         {/* Register Form */}
         <form onSubmit={handleRegister} className="space-y-4">
+
           {/* Full Name */}
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-gray-800">
@@ -167,7 +190,11 @@ export default function RegisterPage() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-teal-600"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                {showPassword ? (
+                  <EyeOff size={17} />
+                ) : (
+                  <Eye size={17} />
+                )}
               </button>
             </div>
 
@@ -195,11 +222,16 @@ export default function RegisterPage() {
           {/* Register Button */}
           <button
             type="submit"
-            disabled={!hasUppercase || !hasLowercase || !hasMinLength}
+            disabled={
+              !hasUppercase ||
+              !hasLowercase ||
+              !hasMinLength ||
+              loading
+            }
             className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-teal-600 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Register
-            <ArrowRight size={16} />
+            {loading ? "Creating Account..." : "Register"}
+            {!loading && <ArrowRight size={16} />}
           </button>
         </form>
 

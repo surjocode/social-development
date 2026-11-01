@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -50,11 +49,17 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    const data = await authClient.signIn.social({
+      provider: "google",
+    });
+    console.log(data)
+  };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f5f7f9] px-4 py-10">
       {/* Login Card */}
       <div className="w-full max-w-[380px] rounded-2xl border border-gray-100 bg-white px-6 py-7 shadow-xl shadow-gray-200/70 sm:px-8">
-
         {/* Logo */}
         <div className="mb-2 flex justify-center">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#10b99f] to-[#078b80] text-white shadow-md">
@@ -75,7 +80,6 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <form onSubmit={handleLoginIn} className="space-y-4">
-
           {/* Email */}
           <div>
             <label
@@ -141,11 +145,7 @@ export default function LoginPage() {
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-700"
               >
-                {showPassword ? (
-                  <EyeOff size={16} />
-                ) : (
-                  <Eye size={16} />
-                )}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
@@ -172,15 +172,11 @@ export default function LoginPage() {
         </div>
 
         {/* Google Login */}
-        <button
+        <button onClick={handleGoogleLogin}
           type="button"
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3 text-xs font-bold text-gray-800 shadow-sm transition hover:bg-gray-50"
         >
-          <svg
-            viewBox="0 0 48 48"
-            className="h-4 w-4"
-            aria-hidden="true"
-          >
+          <svg viewBox="0 0 48 48" className="h-4 w-4" aria-hidden="true">
             <path
               fill="#FFC107"
               d="M43.6 20.5H42V20H24v8h11.3A12 12 0 1 1 32 15.2l5.7-5.7A20 20 0 1 0 44 24c0-1.2-.1-2.3-.4-3.5Z"
@@ -198,7 +194,6 @@ export default function LoginPage() {
               d="M43.6 20.5H42V20H24v8h11.3a12 12 0 0 1-4 5.6l6.2 5.2A20 20 0 0 0 44 24c0-1.2-.1-2.3-.4-3.5Z"
             />
           </svg>
-
           Continue with Google
         </button>
 
