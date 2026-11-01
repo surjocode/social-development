@@ -8,16 +8,18 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-geist-sans",
 });
 
 const josefinSans = Josefin_Sans({
   subsets: ["latin"],
   variable: "--font-josefin",
-});
+});;
 
 export const metadata: Metadata = {
   title: {
@@ -60,6 +62,7 @@ export default function RootLayout({
 
           <Toaster position="top-right" richColors />
         </ThemeProvider>
+        <ToastContainer position="top-right" autoClose={3000} />
       </body>
     </html>
   );

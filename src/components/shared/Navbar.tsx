@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -5,7 +6,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { useTheme } from "@teispace/next-themes";
 
 import {
   Home,
@@ -13,8 +13,6 @@ import {
   Info,
   Images,
   Newspaper,
-  Sun,
-  Moon,
   Menu,
   LogOut,
   User,
@@ -25,6 +23,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 import {
   DropdownMenu,
@@ -73,34 +72,11 @@ const dashboardLinks = [
   },
 ];
 
-const ThemeToggle = ({
-  theme,
-  onToggle,
-}: {
-  theme?: string;
-  onToggle: () => void;
-}) => (
-  <Button
-    variant="ghost"
-    size="icon"
-    className="rounded-full"
-    onClick={onToggle}
-    aria-label="Toggle theme"
-  >
-    {theme === "dark" ? (
-      <Sun className="h-5 w-5" />
-    ) : (
-      <Moon className="h-5 w-5" />
-    )}
-  </Button>
-);
-
 const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
 
   const { data: session, isPending } = authClient.useSession();
-  const { theme, setTheme } = useTheme();
 
   const [open, setOpen] = useState(false);
 
@@ -118,8 +94,6 @@ const Navbar = () => {
     });
   };
 
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
-
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     if (href.startsWith("/#")) return false;
@@ -129,6 +103,7 @@ const Navbar = () => {
   return (
     <header className="fixed top-0 z-50 w-full px-3 pt-3">
       <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-border/60 bg-background/90 px-5 py-3 shadow-lg backdrop-blur-xl">
+
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <div className="relative h-9 w-9 shrink-0 overflow-hidden">
@@ -176,9 +151,12 @@ const Navbar = () => {
 
         {/* Desktop Right Side */}
         <div className="hidden items-center gap-3 lg:flex">
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <ThemeToggle />
 
-          <div className="h-6 w-px bg-border" aria-hidden="true" />
+          <div
+            className="h-6 w-px bg-border"
+            aria-hidden="true"
+          />
 
           {!isPending && !user && (
             <Button
@@ -195,7 +173,9 @@ const Navbar = () => {
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-full outline-none">
                 <Avatar className="h-10 w-10 border-2 border-green-700">
                   <AvatarImage src={user.image || ""} />
-                  <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
+                  <AvatarFallback>
+                    {user.name?.charAt(0) || "U"}
+                  </AvatarFallback>
                 </Avatar>
 
                 <span className="max-w-28 truncate text-sm font-medium">
@@ -244,7 +224,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         <div className="flex items-center gap-2 lg:hidden">
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <ThemeToggle />
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
@@ -268,6 +248,7 @@ const Navbar = () => {
                   height={32}
                   className="h-8 w-8 object-contain"
                 />
+
                 <span className="text-xl font-bold text-green-800 dark:text-green-400">
                   Helping Hands
                 </span>
@@ -289,7 +270,7 @@ const Navbar = () => {
                   );
                 })}
 
-                <div className="my-2 border-t" />
+                <div className="my-2 border-t border-border" />
 
                 {!isPending && !user && (
                   <SheetClose
@@ -340,7 +321,10 @@ const Navbar = () => {
                       );
                     })}
 
-                    <Button variant="destructive" onClick={handleLogout}>
+                    <Button
+                      variant="destructive"
+                      onClick={handleLogout}
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
                     </Button>
