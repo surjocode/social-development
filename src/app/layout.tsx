@@ -6,7 +6,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
+
 import { Toaster } from "@/components/ui/sonner";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -19,7 +19,7 @@ const geist = Geist({
 const josefinSans = Josefin_Sans({
   subsets: ["latin"],
   variable: "--font-josefin",
-});;
+});
 
 export const metadata: Metadata = {
   title: {
@@ -47,21 +47,15 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-        >
-          <Navbar />
+        <Navbar />
 
-          <main className="flex-1 pt-24">
-            {children}
-          </main>
+        <main className="flex-1 pt-24">
+          {children}
+        </main>
 
-          <Footer />
+        <Footer />
 
-          <Toaster position="top-right" richColors />
-        </ThemeProvider>
+        <Toaster position="top-right" richColors />
         <ToastContainer position="top-right" autoClose={3000} />
       </body>
     </html>

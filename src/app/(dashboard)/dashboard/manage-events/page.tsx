@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import { MapPin } from "lucide-react";
 import EditEventForm from "@/components/events/EditEventForm";
+import DeleteEventDialog from "@/components/events/DeleteEventDialog";
 
 type Event = {
   _id: string;
@@ -17,6 +19,22 @@ type Event = {
   email: string;
   organizer: string;
   status: string;
+};
+
+// Format date with short weekday name
+const formatEventDate = (date: string) => {
+  const eventDate = new Date(date);
+
+  if (isNaN(eventDate.getTime())) {
+    return "Date not available";
+  }
+
+  return eventDate.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 };
 
 export default function ManageEventsPage() {
@@ -41,7 +59,7 @@ export default function ManageEventsPage() {
         setLoading(true);
 
         const response = await fetch(
-          `http://localhost:8000/my-created-events/${encodeURIComponent(user.email)}`,
+          `http://localhost:8000/my-created-events/${encodeURIComponent(user.email)}`
         );
 
         if (!response.ok) {
@@ -66,12 +84,17 @@ export default function ManageEventsPage() {
   }
 
   if (!user) {
-    return <div className="p-6">Please login to manage your events.</div>;
+    return (
+      <div className="p-6">
+        Please login to manage your events.
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-[#f5f7f9] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
+
         {/* Header */}
         <div className="mb-8 border-b border-gray-200 pb-6">
           <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
@@ -125,18 +148,21 @@ export default function ManageEventsPage() {
                 key={event._id}
                 className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
+
                 {/* Event Image */}
                 <div className="relative h-48 overflow-hidden">
-                  {event.image && event.image.trim() !== "" && (
-                    <Image
-                      src={event.image}
-                      alt={event.title}
-                      width={500}
-                      height={300}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      unoptimized
-                    />
-                  )}
+                  {event.image &&
+                    event.image.trim() !== "" &&
+                    /^https?:\/\//i.test(event.image) && (
+                      <Image
+                        src={event.image}
+                        alt={event.title}
+                        width={500}
+                        height={300}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        unoptimized
+                      />
+                    )}
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
@@ -147,7 +173,7 @@ export default function ManageEventsPage() {
 
                   {/* Date Badge */}
                   <span className="absolute bottom-4 left-4 rounded-lg bg-black/60 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
-                    📅 {event.eventDate}
+                    📅 {formatEventDate(event.eventDate)}
                   </span>
                 </div>
 
@@ -158,7 +184,10 @@ export default function ManageEventsPage() {
                   </h2>
 
                   <div className="mb-3 flex items-center gap-2 text-xs text-gray-500">
-                    <MapPin size={15} className="shrink-0 text-[#11998e]" />
+                    <MapPin
+                      size={15}
+                      className="shrink-0 text-[#11998e]"
+                    />
                     <span>{event.location}</span>
                   </div>
 
@@ -170,7 +199,7 @@ export default function ManageEventsPage() {
                     👤 {event.organizer}
                   </div>
 
-                  {/* Status Badge Added Back */}
+                  {/* Status Badge */}
                   <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
                     {event.status}
                   </span>
@@ -183,30 +212,16 @@ export default function ManageEventsPage() {
                     >
                       View
                     </a>
+
                     <EditEventForm
                       event={event}
                       onUpdated={() => window.location.reload()}
                     />
 
-                    <button
-                      type="button"
-                      className="flex h-9 items-center justify-center gap-1 rounded-lg bg-rose-50 px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
-                    >
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        ></path>
-                      </svg>
-                      Delete
-                    </button>
+                    <DeleteEventDialog
+                      event={event}
+                      onDeleted={() => window.location.reload()}
+                    />
                   </div>
                 </div>
               </div>
