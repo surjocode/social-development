@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo, useState } from "react";
@@ -147,35 +146,34 @@ export default function UpcomingEventsList({ events }: Props) {
                 className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 {/* Image */}
-               
-<div className="relative h-48 overflow-hidden bg-gray-100">
-  {event.image &&
-  (event.image.startsWith("/") ||
-    /^https?:\/\/\S+$/i.test(event.image)) ? (
-    <Image
-      src={event.image}
-      alt={event.title || "Event image"}
-      fill
-      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-      className="object-cover transition duration-500 group-hover:scale-105"
-    />
-  ) : (
-    <div className="flex h-full items-center justify-center text-sm text-gray-400">
-      No Image Available
-    </div>
-  )}
 
-  <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[#11998e] shadow">
-    <Tag size={12} />
-    {event.category}
-  </div>
+                <div className="relative h-48 overflow-hidden bg-gray-100">
+                  {event.image &&
+                  (event.image.startsWith("/") ||
+                    /^https?:\/\/\S+$/i.test(event.image)) ? (
+                    <Image
+                      src={event.image}
+                      alt={event.title || "Event image"}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-400">
+                      No Image Available
+                    </div>
+                  )}
 
-  <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-md bg-gray-900/85 px-2 py-1 text-xs font-medium text-white">
-    <CalendarDays size={13} />
-    {formatDate(event.startDate || event.eventDate)}
-  </div>
-</div>
+                  <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[#11998e] shadow">
+                    <Tag size={12} />
+                    {event.category}
+                  </div>
 
+                  <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-md bg-gray-900/85 px-2 py-1 text-xs font-medium text-white">
+                    <CalendarDays size={13} />
+                    {formatDate(event.startDate || event.eventDate)}
+                  </div>
+                </div>
 
                 {/* Content */}
                 <div className="p-4">
@@ -210,14 +208,9 @@ export default function UpcomingEventsList({ events }: Props) {
           </div>
         ) : (
           <div className="rounded-2xl border border-gray-200 bg-white px-5 py-16 text-center">
-            <CalendarDays
-              className="mx-auto mb-3 text-gray-400"
-              size={35}
-            />
+            <CalendarDays className="mx-auto mb-3 text-gray-400" size={35} />
 
-            <h3 className="text-lg font-bold text-gray-800">
-              No Events Found
-            </h3>
+            <h3 className="text-lg font-bold text-gray-800">No Events Found</h3>
 
             <p className="mt-2 text-sm text-gray-500">
               Try another category or search keyword.

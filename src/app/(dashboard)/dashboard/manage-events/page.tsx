@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
+import { Edit, MapPin } from "lucide-react";
+import EditEventForm from "@/components/events/EditEventForm";
 
 type Event = {
   _id: string;
@@ -155,9 +157,10 @@ export default function ManageEventsPage() {
                     {event.title}
                   </h2>
 
-                  <p className="flex items-center gap-2 text-sm text-gray-500">
-                    📍 {event.location}
-                  </p>
+                  <div className="mb-3 flex items-center gap-2 text-xs text-gray-500">
+                    <MapPin size={15} className="shrink-0 text-[#11998e]" />
+                    <span>{event.location}</span>
+                  </div>
 
                   <p className="line-clamp-2 text-sm leading-6 text-gray-500">
                     {event.description}
@@ -167,7 +170,7 @@ export default function ManageEventsPage() {
                     👤 {event.organizer}
                   </div>
 
-                  {/* Status */}
+                  {/* Status Badge Added Back */}
                   <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
                     {event.status}
                   </span>
@@ -180,19 +183,26 @@ export default function ManageEventsPage() {
                     >
                       View
                     </a>
-
-                    <a
-                      href={`/dashboard/manage-events/edit/${event._id}`}
-                      className="flex h-9 items-center justify-center gap-1 rounded-lg bg-indigo-50 px-3 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100"
-                    >
-                      ✏️ Edit
-                    </a>
+                    <EditEventForm />
 
                     <button
                       type="button"
                       className="flex h-9 items-center justify-center gap-1 rounded-lg bg-rose-50 px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
                     >
-                      🗑 Delete
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        ></path>
+                      </svg>
+                      Delete
                     </button>
                   </div>
                 </div>
