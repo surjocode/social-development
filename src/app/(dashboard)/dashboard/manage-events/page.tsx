@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
-import { Edit, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import EditEventForm from "@/components/events/EditEventForm";
 
 type Event = {
@@ -183,7 +183,10 @@ export default function ManageEventsPage() {
                     >
                       View
                     </a>
-                    <EditEventForm />
+                    <EditEventForm
+                      event={event}
+                      onUpdated={() => window.location.reload()}
+                    />
 
                     <button
                       type="button"

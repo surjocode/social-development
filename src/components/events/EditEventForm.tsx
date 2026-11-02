@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,42 +10,237 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const EditEventForm = () => {
+type Event = {
+  _id: string;
+  title: string;
+  category: string;
+  eventDate: string;
+  location: string;
+  image: string;
+  description: string;
+};
+
+type EditEventFormProps = {
+  event: Event;
+  onUpdated?: () => void;
+};
+
+const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    title: event.title || "",
+    category: event.category || "",
+    eventDate: event.eventDate?.slice(0, 10) || "",
+    location: event.location || "",
+    image: event.image || "",
+    description: event.description || "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        `http://localhost:8000/dashboard/update-event/${event._id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update event");
+      }
+
+      alert("Event updated successfully!");
+
+      setOpen(false);
+      onUpdated?.();
+    } catch (error) {
+      console.error("Update event error:", error);
+      alert(error instanceof Error ? error.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div>
-      <Dialog>
-        <DialogTrigger>
-          <a
-            href={`/dashboard/manage-events/edit/${event._id}`}
-            className="flex h-9 items-center justify-center gap-1 rounded-lg bg-indigo-50 px-3 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger className="flex h-9 items-center justify-center gap-1 rounded-lg bg-indigo-50 px-3 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100">
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          />
+        </svg>
+        Edit
+      </DialogTrigger>
+
+      <DialogContent className="!h-[90vh] !w-[45vw] !max-w-[900px] overflow-y-auto rounded-3xl bg-white p-6 sm:p-8">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold text-gray-900 sm:text-2xl">
+            Update Event
+          </DialogTitle>
+
+          <DialogDescription>
+            Modify the details for your social service initiative.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+              Title
+            </label>
+
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+            />
+          </div>
+
+          {/* Category and Date */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+                Event Type
+              </label>
+
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                required
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+              >
+                <option value="">Select category</option>
+                <option value="Plantation">Plantation</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Donation">Donation</option>
+                <option value="Winter Clothes">Winter Clothes</option>
+                <option value="Cleanup">Cleanup</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+                Event Date
+              </label>
+
+              <input
+                type="date"
+                name="eventDate"
+                value={formData.eventDate}
+                onChange={handleChange}
+                required
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+              Location
+            </label>
+
+            <input
+              type="text"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              required
+              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+            />
+          </div>
+
+          {/* Image */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+              Thumbnail Image URL
+            </label>
+
+            <input
+              type="text"
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+              Description
+            </label>
+
+            <textarea
+              name="description"
+              rows={4}
+              value={formData.description}
+              onChange={handleChange}
+              required
+              className="w-full resize-y rounded-xl border border-gray-200 bg-gray-50/50 p-4 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              ></path>
-            </svg>
-            Edit
-          </a>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-    </div>
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? "Updating..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
