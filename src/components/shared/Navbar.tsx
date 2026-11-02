@@ -50,11 +50,9 @@ const navLinks = [
   },
   { name: "About", href: "/#about", icon: Info },
   { name: "Gallery", href: "/#gallery", icon: Images },
-  { name: "Blog", href: "/blog", icon: Newspaper },
 ];
 
 const dashboardLinks = [
- 
   {
     name: "Create Event",
     href: "/dashboard/create-event",
