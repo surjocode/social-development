@@ -48,9 +48,9 @@ const navLinks = [
     href: "/upcoming-events",
     icon: CalendarDays,
   },
-  { name: "About", href: "/#about", icon: Info },
   { name: "Gallery", href: "/#gallery", icon: Images },
-];
+  { name: "About", href: "/#about", icon: Info },
+]
 
 const dashboardLinks = [
   {

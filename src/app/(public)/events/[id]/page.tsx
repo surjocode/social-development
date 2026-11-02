@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -152,6 +153,7 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
                 <JoinEventButton
                   eventId={event._id.toString()}
                   creatorEmail={event.email}
+                  status={event.status}
                 />
               </div>
             </div>
@@ -233,7 +235,10 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
                 <div className="my-5 border-t border-gray-200" />
 
                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <ShieldCheck size={18} className="shrink-0 text-teal-500" />
+                  <ShieldCheck
+                    size={18}
+                    className="shrink-0 text-teal-500"
+                  />
                   Verified Platform Member
                 </div>
               </aside>

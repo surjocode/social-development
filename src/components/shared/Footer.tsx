@@ -15,6 +15,7 @@ import {
   FaLinkedinIn,
 } from "react-icons/fa";
 
+
 const Footer = () => {
   return (
     <footer className="bg-[#14251B] text-white">
@@ -229,6 +230,7 @@ const Footer = () => {
         </div>
 
       </div>
+      
     </footer>
   );
 };

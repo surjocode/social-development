@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 type JoinEventButtonProps = {
   eventId: string;
   creatorEmail: string;
+  status: string;
 };
 
 const API_URL = "http://localhost:8000";
@@ -16,6 +17,7 @@ const API_URL = "http://localhost:8000";
 const JoinEventButton = ({
   eventId,
   creatorEmail,
+  status,
 }: JoinEventButtonProps) => {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
@@ -124,6 +126,20 @@ const JoinEventButton = ({
       setIsLoading(false);
     }
   };
+
+  // Show Completed button for completed events
+  if (status?.toLowerCase() === "completed") {
+    return (
+      <button
+        type="button"
+        disabled
+        className="flex items-center justify-center gap-2 rounded-xl bg-gray-200 px-6 py-3 text-sm font-bold text-gray-500 cursor-not-allowed"
+      >
+        <CheckCircle2 size={19} />
+        Completed
+      </button>
+    );
+  }
 
   if (isPending || isLoading) {
     return (
