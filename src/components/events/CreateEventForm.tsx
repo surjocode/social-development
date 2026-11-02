@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { authClient } from "@/lib/auth-client";
 
 const imagePresets = [
   {
@@ -33,13 +34,15 @@ const imagePresets = [
 ];
 
 const CreateEventForm = () => {
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
+
   const [imageUrl, setImageUrl] = useState("");
   const [minDate, setMinDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
-  // Calculate today's date after component mounts
   useEffect(() => {
     const today = new Date();
 
@@ -52,7 +55,6 @@ const CreateEventForm = () => {
     setMinDate(formattedDate);
   }, []);
 
-  // Handle Form Submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -60,6 +62,11 @@ const CreateEventForm = () => {
     setMessageType("");
 
     if (isSubmitting) return;
+
+    if (isPending || !user?.email) {
+      toast.error("Please login first!");
+      return;
+    }
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -71,6 +78,9 @@ const CreateEventForm = () => {
       location: String(formData.get("location") || "").trim(),
       image: imageUrl,
       description: String(formData.get("description") || "").trim(),
+      email: user.email,
+      organizer: user.name,
+      status: "upcoming",
     };
 
     if (!eventData.image) {
@@ -96,12 +106,12 @@ const CreateEventForm = () => {
         throw new Error(data.message || "Failed to publish event.");
       }
 
-      console.log("Saved Event:", data);
-
-      toast.success(data.message || "Event published successfully!");
+      toast.success("Event published successfully!");
 
       form.reset();
       setImageUrl("");
+      setMessage("Event published successfully!");
+      setMessageType("success");
     } catch (error) {
       console.error("Event submission error:", error);
 
@@ -125,7 +135,6 @@ const CreateEventForm = () => {
   return (
     <div className="min-h-screen bg-[#F5F8FA] px-4 py-8">
       <div className="mx-auto max-w-2xl">
-        {/* Back Button */}
         <Link
           href="/upcoming-events"
           className="mb-6 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#159B8D]"
@@ -134,9 +143,7 @@ const CreateEventForm = () => {
           Back to Upcoming Events
         </Link>
 
-        {/* Form Card */}
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
-          {/* Header */}
           <div className="mb-8">
             <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#EAF7F5] px-3 py-1 text-xs font-semibold text-[#159B8D]">
               <CirclePlus size={14} />
@@ -153,7 +160,6 @@ const CreateEventForm = () => {
             </p>
           </div>
 
-          {/* Success / Error Message */}
           {message && (
             <div
               className={`mb-5 rounded-xl px-4 py-3 text-sm font-medium ${
@@ -166,9 +172,7 @@ const CreateEventForm = () => {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Event Title */}
             <div>
               <label className={labelStyle}>
                 Event Title <span className="text-red-500">*</span>
@@ -190,9 +194,7 @@ const CreateEventForm = () => {
               </div>
             </div>
 
-            {/* Event Type and Date */}
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              {/* Event Type */}
               <div>
                 <label className={labelStyle}>
                   Event Type <span className="text-red-500">*</span>
@@ -213,7 +215,6 @@ const CreateEventForm = () => {
                     <option value="" disabled>
                       Select event type
                     </option>
-
                     <option value="Donation">Donation</option>
                     <option value="Environment">Environment</option>
                     <option value="Education">Education</option>
@@ -224,7 +225,6 @@ const CreateEventForm = () => {
                 </div>
               </div>
 
-              {/* Event Date */}
               <div>
                 <label className={labelStyle}>
                   Event Date <span className="text-red-500">*</span>
@@ -251,7 +251,6 @@ const CreateEventForm = () => {
               </div>
             </div>
 
-            {/* Location */}
             <div>
               <label className={labelStyle}>
                 Location / Venue <span className="text-red-500">*</span>
@@ -273,7 +272,6 @@ const CreateEventForm = () => {
               </div>
             </div>
 
-            {/* Thumbnail Image URL */}
             <div>
               <label className={labelStyle}>
                 Thumbnail Image URL <span className="text-red-500">*</span>
@@ -296,7 +294,6 @@ const CreateEventForm = () => {
                 />
               </div>
 
-              {/* Image Presets */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
                 <span className="text-gray-400">Quick photo presets:</span>
 
@@ -313,7 +310,6 @@ const CreateEventForm = () => {
               </div>
             </div>
 
-            {/* Event Description */}
             <div>
               <label className={labelStyle}>
                 Event Description <span className="text-red-500">*</span>
@@ -328,21 +324,17 @@ const CreateEventForm = () => {
               />
             </div>
 
-            {/* Organizer Email */}
             <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-100 bg-[#F8FAFB] px-4 py-3 sm:flex-row sm:items-center">
-              <span className="text-xs text-gray-500">
-                Organizer Email will be attached automatically
-              </span>
+              <span className="text-xs text-gray-500">Organizer Email</span>
 
               <span className="text-xs font-semibold text-gray-700">
-                Your account email
+                {user?.email || "Login required"}
               </span>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPending}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#159B8D] px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#117D73] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <CirclePlus size={17} />

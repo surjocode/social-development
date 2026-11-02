@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -5,7 +6,6 @@ import Link from "next/link";
 import {
   CalendarDays,
   MapPin,
-  PlusCircle,
   Search,
   UserRound,
   ArrowRight,
@@ -18,7 +18,8 @@ type Event = {
   title: string;
   category: string;
   location: string;
-  startDate: string;
+  startDate?: string;
+  eventDate?: string;
   endDate?: string;
   time?: string;
   description: string;
@@ -52,20 +53,27 @@ export default function UpcomingEventsList({ events }: Props) {
     return events.filter((event) => {
       const matchesCategory =
         activeCategory === "All" ||
-        event.category.toLowerCase() === activeCategory.toLowerCase();
+        event.category?.toLowerCase() === activeCategory.toLowerCase();
 
       const matchesSearch =
-        event.title.toLowerCase().includes(search.toLowerCase()) ||
-        event.location.toLowerCase().includes(search.toLowerCase());
+        event.title?.toLowerCase().includes(search.toLowerCase()) ||
+        event.location?.toLowerCase().includes(search.toLowerCase());
 
       return matchesCategory && matchesSearch;
     });
   }, [events, activeCategory, search]);
 
-  const formatDate = (date: string) => {
-    const [year, month, day] = date.split("-").map(Number);
+  // Format event date
+  const formatDate = (date?: string) => {
+    if (!date) return "Date not available";
 
-    return new Date(year, month - 1, day).toLocaleDateString("en-US", {
+    const parsedDate = new Date(date);
+
+    if (isNaN(parsedDate.getTime())) {
+      return "Date not available";
+    }
+
+    return parsedDate.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
@@ -94,14 +102,6 @@ export default function UpcomingEventsList({ events }: Props) {
               active drives that need support.
             </p>
           </div>
-
-          <Link
-            href="/dashboard/create-event"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#11998e] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#087f75]"
-          >
-            <PlusCircle size={17} />
-            Create Event
-          </Link>
         </div>
 
         {/* Filters and Search */}
@@ -147,25 +147,35 @@ export default function UpcomingEventsList({ events }: Props) {
                 className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 {/* Image */}
-                <div className="relative h-48 overflow-hidden bg-gray-100">
-                  <Image
-                    src={event.image}
-                    alt={event.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                  />
+               
+<div className="relative h-48 overflow-hidden bg-gray-100">
+  {event.image &&
+  (event.image.startsWith("/") ||
+    /^https?:\/\/\S+$/i.test(event.image)) ? (
+    <Image
+      src={event.image}
+      alt={event.title || "Event image"}
+      fill
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      className="object-cover transition duration-500 group-hover:scale-105"
+    />
+  ) : (
+    <div className="flex h-full items-center justify-center text-sm text-gray-400">
+      No Image Available
+    </div>
+  )}
 
-                  <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[#11998e] shadow">
-                    <Tag size={12} />
-                    {event.category}
-                  </div>
+  <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[#11998e] shadow">
+    <Tag size={12} />
+    {event.category}
+  </div>
 
-                  <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-md bg-gray-900/85 px-2 py-1 text-xs font-medium text-white">
-                    <CalendarDays size={13} />
-                    {formatDate(event.startDate)}
-                  </div>
-                </div>
+  <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-md bg-gray-900/85 px-2 py-1 text-xs font-medium text-white">
+    <CalendarDays size={13} />
+    {formatDate(event.startDate || event.eventDate)}
+  </div>
+</div>
+
 
                 {/* Content */}
                 <div className="p-4">
@@ -200,9 +210,14 @@ export default function UpcomingEventsList({ events }: Props) {
           </div>
         ) : (
           <div className="rounded-2xl border border-gray-200 bg-white px-5 py-16 text-center">
-            <CalendarDays className="mx-auto mb-3 text-gray-400" size={35} />
+            <CalendarDays
+              className="mx-auto mb-3 text-gray-400"
+              size={35}
+            />
 
-            <h3 className="text-lg font-bold text-gray-800">No Events Found</h3>
+            <h3 className="text-lg font-bold text-gray-800">
+              No Events Found
+            </h3>
 
             <p className="mt-2 text-sm text-gray-500">
               Try another category or search keyword.
