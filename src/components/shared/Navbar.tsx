@@ -16,7 +16,7 @@ import {
   LogOut,
   User,
   PlusCircle,
-  LayoutDashboard,
+  CheckCircle2,
   LogIn,
 } from "lucide-react";
 
@@ -54,7 +54,7 @@ const navLinks = [
 ];
 
 const dashboardLinks = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+ 
   {
     name: "Create Event",
     href: "/dashboard/create-event",
@@ -68,6 +68,11 @@ const dashboardLinks = [
   {
     name: "Joined Events",
     href: "/dashboard/joined-events",
+    icon: CheckCircle2,
+  },
+  {
+    name: "Profile",
+    href: "/dashboard/profile",
     icon: User,
   },
 ];
@@ -82,7 +87,7 @@ const Navbar = () => {
 
   const user = session?.user;
   console.log("USER IMAGE:", user?.image);
-console.log("USER DATA:", user);
+  console.log("USER DATA:", user);
 
   const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
 
@@ -175,13 +180,11 @@ console.log("USER DATA:", user);
                   <AvatarImage
                     src={user?.image || undefined}
                     alt={user?.name || "User"}
-                    
                   />
-                  
+
                   <AvatarFallback className="bg-green-100 font-semibold text-green-800">
                     {userInitial}
                   </AvatarFallback>
-                  
                 </Avatar>
 
                 <span className="max-w-28 truncate text-sm font-medium">

@@ -13,6 +13,7 @@ import {
 import { notFound } from "next/navigation";
 
 import type { Event } from "@/types/event";
+import JoinEventButton from "@/components/events/JoinEventButton";
 
 type EventDetailsPageProps = {
   params: Promise<{
@@ -148,13 +149,10 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
                   <Share2 size={19} />
                 </button>
 
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0ca58e] to-[#11998e] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:from-[#087f75] hover:to-[#087f75]"
-                >
-                  <HeartHandshake size={19} />
-                  Join Event
-                </button>
+                <JoinEventButton
+                  eventId={event._id.toString()}
+                  creatorEmail={event.email}
+                />
               </div>
             </div>
 
