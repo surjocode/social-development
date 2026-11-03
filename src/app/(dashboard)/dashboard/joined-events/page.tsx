@@ -1,9 +1,15 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, CheckCircle2, MapPin, ArrowRight } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  MapPin,
+  ArrowRight,
+} from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -21,7 +27,9 @@ type Event = {
 
 const API_URL = "http://localhost:8000";
 
-const formatDate = (date: string | Date | null | undefined) => {
+const formatDate = (
+  date: string | Date | null | undefined
+) => {
   if (!date) return "Date not available";
 
   const parsedDate = new Date(date);
@@ -60,21 +68,45 @@ const JoinedEventsPage = () => {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `${API_URL}/my-joined-events/${encodeURIComponent(user.email)}`,
-          { cache: "no-store" },
-        );
+        // Get JWT token from Better Auth
+        const tokenData = await authClient.token();
 
-        if (!response.ok) {
-          throw new Error("Failed to load joined events");
+        const token = tokenData.data?.token;
+
+        if (!token) {
+          throw new Error(
+            "Authentication token not found. Please login again."
+          );
         }
 
-        const data: Event[] = await response.json();
+        // Fetch joined events with JWT
+        const response = await fetch(
+          `${API_URL}/my-joined-events/${encodeURIComponent(user.email)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Failed to load joined events"
+          );
+        }
 
         setEvents(data);
       } catch (error) {
-        console.error(error);
-        setError("Unable to load your joined events.");
+        console.error("Fetch joined events error:", error);
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load your joined events."
+        );
       } finally {
         setLoading(false);
       }
@@ -86,7 +118,9 @@ const JoinedEventsPage = () => {
   if (isPending || loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <p className="font-medium text-teal-700">Loading joined events...</p>
+        <p className="font-medium text-teal-700">
+          Loading joined events...
+        </p>
       </div>
     );
   }
@@ -94,7 +128,10 @@ const JoinedEventsPage = () => {
   if (!user?.email) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-        <h2 className="text-xl font-bold text-gray-900">Please Login First</h2>
+        <h2 className="text-xl font-bold text-gray-900">
+          Please Login First
+        </h2>
+
         <Link
           href="/login"
           className="rounded-xl bg-teal-700 px-6 py-3 text-sm font-bold text-white"
@@ -161,12 +198,21 @@ const JoinedEventsPage = () => {
             >
               {/* Image */}
               <div className="relative h-48 w-full bg-gradient-to-br from-teal-700 to-emerald-950">
-                {event.image && /^https?:\/\//i.test(event.image) ? (
+                {event.image &&
+                /^https?:\/\//i.test(event.image) ? (
                   <Image
                     src={event.image}
                     alt={event.title}
                     fill
                     unoptimized
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                ) : event.image ? (
+                  <Image
+                    src={event.image}
+                    alt={event.title}
+                    fill
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
                   />
@@ -191,7 +237,10 @@ const JoinedEventsPage = () => {
                 </h2>
 
                 <p className="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
-                  <MapPin size={15} className="shrink-0 text-teal-600" />
+                  <MapPin
+                    size={15}
+                    className="shrink-0 text-teal-600"
+                  />
                   {event.location}
                 </p>
 

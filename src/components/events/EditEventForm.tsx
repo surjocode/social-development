@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ChangeEvent } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { authClient } from "@/lib/auth-client";
 
 type Event = {
   _id: string;
@@ -39,9 +41,9 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<
+    e: ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    >
   ) => {
     const { name, value } = e.target;
 
@@ -54,24 +56,40 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (loading) return;
+
     try {
       setLoading(true);
 
+      // Get JWT token from Better Auth
+      const tokenData = await authClient.token();
+      const token = tokenData.data?.token;
+
+      if (!token) {
+        throw new Error(
+          "Authentication token not found. Please login again."
+        );
+      }
+
+      // Send PATCH request with JWT
       const response = await fetch(
         `http://localhost:8000/dashboard/update-event/${event._id}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(formData),
-        },
+        }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to update event");
+        throw new Error(
+          data.message || "Failed to update event"
+        );
       }
 
       alert("Event updated successfully!");
@@ -80,7 +98,12 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
       onUpdated?.();
     } catch (error) {
       console.error("Update event error:", error);
-      alert(error instanceof Error ? error.message : "Something went wrong");
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -119,7 +142,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+            <label className="mb-1.5 block text-xs font-semibold text-gray-700">
               Title
             </label>
 
@@ -136,7 +159,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
           {/* Category and Date */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+              <label className="mb-1.5 block text-xs font-semibold text-gray-700">
                 Event Type
               </label>
 
@@ -158,7 +181,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+              <label className="mb-1.5 block text-xs font-semibold text-gray-700">
                 Event Date
               </label>
 
@@ -175,7 +198,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
 
           {/* Location */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+            <label className="mb-1.5 block text-xs font-semibold text-gray-700">
               Location
             </label>
 
@@ -191,7 +214,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
 
           {/* Image */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+            <label className="mb-1.5 block text-xs font-semibold text-gray-700">
               Thumbnail Image URL
             </label>
 
@@ -206,7 +229,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
 
           {/* Description */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold  text-gray-700">
+            <label className="mb-1.5 block text-xs font-semibold text-gray-700">
               Description
             </label>
 
@@ -225,7 +248,8 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
+              disabled={loading}
+              className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
             >
               Cancel
             </button>

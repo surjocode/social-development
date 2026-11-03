@@ -12,7 +12,38 @@ type JoinEventButtonProps = {
   status: string;
 };
 
-const API_URL = "http://localhost:8000";
+type JoinedEvent = {
+  _id: string;
+};
+
+type JoinedEventsResponse = {
+  result?: JoinedEvent[];
+  events?: JoinedEvent[];
+  message?: string;
+};
+
+const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+).replace(/\/$/, "");
+
+// Safely parse backend response
+const getResponseData = async (response: Response) => {
+  const text = await response.text();
+
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    console.error("Invalid API response:", {
+      status: response.status,
+      url: response.url,
+      body: text.slice(0, 500),
+    });
+
+    throw new Error(
+      `Backend returned HTML or invalid JSON. Status: ${response.status}. Check the API route.`
+    );
+  }
+};
 
 const JoinEventButton = ({
   eventId,
@@ -43,25 +74,52 @@ const JoinEventButton = ({
       }
 
       try {
-        const response = await fetch(
-          `${API_URL}/my-joined-events/${encodeURIComponent(user.email)}`,
-          { cache: "no-store" }
-        );
+        const tokenData = await authClient.token();
+        const token = tokenData.data?.token;
 
-        if (!response.ok) {
-          throw new Error("Failed to check joined status");
+        if (!token) {
+          throw new Error(
+            "Authentication token not found. Please login again."
+          );
         }
 
-        const events = await response.json();
+        const response = await fetch(
+          `${API_URL}/my-joined-events/${encodeURIComponent(user.email)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+            cache: "no-store",
+          }
+        );
+
+        const data = await getResponseData(response);
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Failed to check joined status"
+          );
+        }
+
+        // Support both array and object responses
+        const joinedEvents: JoinedEvent[] = Array.isArray(data)
+          ? data
+          : data.result || data.events || [];
 
         setIsJoined(
-          events.some(
-            (event: { _id: string }) => event._id === eventId
+          joinedEvents.some(
+            (event) => event._id?.toString() === eventId
           )
         );
       } catch (error) {
-        console.error(error);
-        setMessage("Could not check your join status.");
+        console.error("Check joined status error:", error);
+
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "Could not check your join status."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -81,29 +139,43 @@ const JoinEventButton = ({
       return;
     }
 
+    if (isLoading) return;
+
     setIsLoading(true);
     setMessage("");
 
     try {
-      const response = await fetch(
-        `${API_URL}/${isJoined ? "leave-event" : "join-event"}`,
-        {
-          method: isJoined ? "DELETE" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            eventId,
-            userEmail: user.email,
-            userName: user.name || "",
-          }),
-        }
-      );
+      const tokenData = await authClient.token();
+      const token = tokenData.data?.token;
 
-      const result = await response.json();
+      if (!token) {
+        throw new Error(
+          "Authentication token not found. Please login again."
+        );
+      }
+
+      const endpoint = isJoined ? "leave-event" : "join-event";
+      const method = isJoined ? "DELETE" : "POST";
+
+      const response = await fetch(`${API_URL}/${endpoint}`, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          eventId,
+          userName: user.name || "",
+        }),
+      });
+
+      const result = await getResponseData(response);
 
       if (!response.ok) {
-        throw new Error(result.message || "Something went wrong");
+        throw new Error(
+          result.message || "Something went wrong"
+        );
       }
 
       setIsJoined(!isJoined);
@@ -114,9 +186,10 @@ const JoinEventButton = ({
           : "Successfully joined this event!"
       );
 
-      // Refresh server component to update volunteer count
       router.refresh();
     } catch (error) {
+      console.error("Join/Leave event error:", error);
+
       setMessage(
         error instanceof Error
           ? error.message
@@ -133,7 +206,7 @@ const JoinEventButton = ({
       <button
         type="button"
         disabled
-        className="flex items-center justify-center gap-2 rounded-xl bg-gray-200 px-6 py-3 text-sm font-bold text-gray-500 cursor-not-allowed"
+        className="flex cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-gray-200 px-6 py-3 text-sm font-bold text-gray-500"
       >
         <CheckCircle2 size={19} />
         Completed
@@ -175,9 +248,7 @@ const JoinEventButton = ({
           <HeartHandshake size={19} />
         )}
 
-        {isJoined
-          ? "Joined (Click to Leave)"
-          : "Join Event"}
+        {isJoined ? "Joined (Click to Leave)" : "Join Event"}
       </button>
 
       {message && (

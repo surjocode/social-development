@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -41,7 +42,9 @@ const CreateEventForm = () => {
   const [minDate, setMinDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [messageType, setMessageType] = useState<
+    "success" | "error" | ""
+  >("");
 
   useEffect(() => {
     const today = new Date();
@@ -55,7 +58,9 @@ const CreateEventForm = () => {
     setMinDate(formattedDate);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
     setMessage("");
@@ -76,9 +81,10 @@ const CreateEventForm = () => {
       category: String(formData.get("category") || ""),
       eventDate: String(formData.get("eventDate") || ""),
       location: String(formData.get("location") || "").trim(),
-      image: imageUrl,
-      description: String(formData.get("description") || "").trim(),
-      email: user.email,
+      image: imageUrl.trim(),
+      description: String(
+        formData.get("description") || ""
+      ).trim(),
       organizer: user.name,
       status: "upcoming",
     };
@@ -92,18 +98,35 @@ const CreateEventForm = () => {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch("http://localhost:8000/dashboard/create-event", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(eventData),
-      });
+      // Get JWT token from Better Auth
+      const tokenData = await authClient.token();
+      const token = tokenData.data?.token;
+
+      if (!token) {
+        throw new Error(
+          "Authentication token not found. Please login again."
+        );
+      }
+
+      // Send event data with JWT token
+      const res = await fetch(
+        "http://localhost:8000/dashboard/create-event",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(eventData),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to publish event.");
+        throw new Error(
+          data.message || "Failed to publish event."
+        );
       }
 
       toast.success("Event published successfully!");
@@ -115,12 +138,14 @@ const CreateEventForm = () => {
     } catch (error) {
       console.error("Event submission error:", error);
 
-      toast.error(
+      const errorMessage =
         error instanceof Error
           ? error.message
-          : "Something went wrong. Please try again.",
-      );
+          : "Something went wrong. Please try again.";
 
+      toast.error(errorMessage);
+
+      setMessage(errorMessage);
       setMessageType("error");
     } finally {
       setIsSubmitting(false);
@@ -130,7 +155,8 @@ const CreateEventForm = () => {
   const inputStyle =
     "w-full rounded-xl border border-gray-200 bg-[#F8FAFB] px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-[#159B8D] focus:ring-2 focus:ring-[#159B8D]/10";
 
-  const labelStyle = "mb-2 block text-sm font-semibold text-gray-700";
+  const labelStyle =
+    "mb-2 block text-sm font-semibold text-gray-700";
 
   return (
     <div className="min-h-screen bg-[#F5F8FA] px-4 py-8">
@@ -219,8 +245,12 @@ const CreateEventForm = () => {
                     <option value="Environment">Environment</option>
                     <option value="Education">Education</option>
                     <option value="Healthcare">Healthcare</option>
-                    <option value="Community Service">Community Service</option>
-                    <option value="Disaster Relief">Disaster Relief</option>
+                    <option value="Community Service">
+                      Community Service
+                    </option>
+                    <option value="Disaster Relief">
+                      Disaster Relief
+                    </option>
                   </select>
                 </div>
               </div>
@@ -246,7 +276,7 @@ const CreateEventForm = () => {
                 </div>
 
                 <p className="mt-2 text-[11px] text-gray-400">
-                  Dates must be in the future (today or later)
+                  Dates must be today or later.
                 </p>
               </div>
             </div>
@@ -274,7 +304,8 @@ const CreateEventForm = () => {
 
             <div>
               <label className={labelStyle}>
-                Thumbnail Image URL <span className="text-red-500">*</span>
+                Thumbnail Image URL{" "}
+                <span className="text-red-500">*</span>
               </label>
 
               <div className="relative">
@@ -295,7 +326,9 @@ const CreateEventForm = () => {
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
-                <span className="text-gray-400">Quick photo presets:</span>
+                <span className="text-gray-400">
+                  Quick photo presets:
+                </span>
 
                 {imagePresets.map((preset) => (
                   <button
@@ -312,7 +345,8 @@ const CreateEventForm = () => {
 
             <div>
               <label className={labelStyle}>
-                Event Description <span className="text-red-500">*</span>
+                Event Description{" "}
+                <span className="text-red-500">*</span>
               </label>
 
               <textarea
@@ -325,7 +359,9 @@ const CreateEventForm = () => {
             </div>
 
             <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-100 bg-[#F8FAFB] px-4 py-3 sm:flex-row sm:items-center">
-              <span className="text-xs text-gray-500">Organizer Email</span>
+              <span className="text-xs text-gray-500">
+                Organizer Email
+              </span>
 
               <span className="text-xs font-semibold text-gray-700">
                 {user?.email || "Login required"}

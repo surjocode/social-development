@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   HeartHandshake,
   MapPin,
-  Share2,
   ShieldCheck,
   Users,
 } from "lucide-react";
@@ -15,6 +14,7 @@ import { notFound } from "next/navigation";
 
 import type { Event } from "@/types/event";
 import JoinEventButton from "@/components/events/JoinEventButton";
+import ShareEventButton from "@/components/events/ShareEventButton";
 
 type EventDetailsPageProps = {
   params: Promise<{
@@ -22,46 +22,61 @@ type EventDetailsPageProps = {
   }>;
 };
 
-const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
+const EventDetailsPage = async ({
+  params,
+}: EventDetailsPageProps) => {
   const { id } = await params;
 
-  const res = await fetch(`http://localhost:8000/events/${id}`, {
-    cache: "no-store",
-  });
+  // Fetch event details (Public API)
+  const res = await fetch(
+    `http://localhost:8000/events/${id}`,
+    {
+      cache: "no-store",
+    }
+  );
 
-  if (!res.ok) {
+  if (res.status === 404) {
     notFound();
   }
 
+  if (!res.ok) {
+    throw new Error(`Backend API Error: ${res.status}`);
+  }
+
   const data: { result: Event | null } = await res.json();
+
   const event = data.result;
 
   if (!event) {
     notFound();
   }
 
-  // Format event date with weekday name
-  const eventDate = new Date(event.startDate || event.eventDate);
+  // Format event date
+  const eventDate = new Date(
+    event.startDate || event.eventDate
+  );
 
   const formattedDate = !isNaN(eventDate.getTime())
-    ? eventDate
-        .toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
-        .replace(",", ",")
+    ? eventDate.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
     : "Date not available";
 
   const joinedCount =
-    "joined" in event && typeof event.joined === "number" ? event.joined : 0;
+    "joined" in event && typeof event.joined === "number"
+      ? event.joined
+      : 0;
 
-  const validImage = event.image && /^https?:\/\//i.test(event.image);
+  const validImage =
+    event.image && /^https?:\/\//i.test(event.image);
 
   return (
     <main className="min-h-screen bg-[#f5f7f9] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
+
         {/* Back Button */}
         <Link
           href="/upcoming-events"
@@ -73,6 +88,7 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
 
         {/* Main Card */}
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg shadow-gray-200/60">
+
           {/* Event Banner */}
           <div className="relative h-[280px] sm:h-[340px] lg:h-[390px]">
             {validImage ? (
@@ -96,7 +112,10 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
             {/* Category Badge */}
             <div className="absolute left-5 top-5 sm:left-8 sm:top-7">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-bold text-gray-800 shadow-md">
-                <HeartHandshake size={15} className="text-teal-600" />
+                <HeartHandshake
+                  size={15}
+                  className="text-teal-600"
+                />
                 {event.category}
               </span>
             </div>
@@ -109,12 +128,18 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
 
               <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-white/90 sm:text-sm">
                 <span className="flex items-center gap-2">
-                  <MapPin size={18} className="text-teal-400" />
+                  <MapPin
+                    size={18}
+                    className="text-teal-400"
+                  />
                   {event.location}
                 </span>
 
                 <span className="flex items-center gap-2">
-                  <CalendarDays size={18} className="text-teal-400" />
+                  <CalendarDays
+                    size={18}
+                    className="text-teal-400"
+                  />
                   {formattedDate}
                 </span>
               </div>
@@ -123,8 +148,10 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
 
           {/* Main Content */}
           <div className="p-5 sm:p-7 lg:p-8">
+
             {/* Join Event Section */}
             <div className="mb-9 flex flex-col justify-between gap-4 rounded-2xl border border-[#dce9ec] bg-[#fbfefe] p-4 sm:flex-row sm:items-center sm:p-5">
+
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#e0f6f2] text-teal-600">
                   <Users size={25} />
@@ -142,13 +169,7 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
               </div>
 
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  aria-label="Share event"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition hover:border-teal-500 hover:text-teal-600"
-                >
-                  <Share2 size={19} />
-                </button>
+                <ShareEventButton />
 
                 <JoinEventButton
                   eventId={event._id.toString()}
@@ -160,8 +181,10 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
 
             {/* About and Organizer Grid */}
             <div className="grid gap-8 md:grid-cols-3">
+
               {/* Left Content */}
               <div className="space-y-6 md:col-span-2">
+
                 {/* About Event */}
                 <section className="space-y-3">
                   <h2 className="text-xl font-bold text-gray-900">
@@ -185,8 +208,7 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
                         size={19}
                         className="mt-0.5 shrink-0 text-teal-500"
                       />
-                      Please arrive 15 minutes before the scheduled time at the
-                      designated location.
+                      Please arrive 15 minutes before the scheduled time at the designated location.
                     </li>
 
                     <li className="flex items-start gap-3 text-sm text-gray-600">
@@ -194,8 +216,7 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
                         size={19}
                         className="mt-0.5 shrink-0 text-teal-500"
                       />
-                      Wear comfortable clothing suitable for physical work and
-                      distribution.
+                      Wear comfortable clothing suitable for physical work and distribution.
                     </li>
 
                     <li className="flex items-start gap-3 text-sm text-gray-600">
@@ -203,8 +224,7 @@ const EventDetailsPage = async ({ params }: EventDetailsPageProps) => {
                         size={19}
                         className="mt-0.5 shrink-0 text-teal-500"
                       />
-                      Bring any pre-coordinated relief packages or distribution
-                      items if requested.
+                      Bring any pre-coordinated relief packages or distribution items if requested.
                     </li>
                   </ul>
                 </section>

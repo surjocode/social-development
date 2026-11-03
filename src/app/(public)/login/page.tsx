@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -18,13 +19,16 @@ import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const inputClasses =
-    "h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/10";
+  const router = useRouter();
 
   const handleLoginIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setLoading(true);
+    setErrorMessage("");
 
     const formData = new FormData(e.currentTarget);
 
@@ -33,33 +37,51 @@ export default function LoginPage() {
       password: string;
     };
 
-    const { data, error } = await authClient.signIn.email({
-      email: user.email,
-      password: user.password,
-    });
+    try {
+      const { data, error } = await authClient.signIn.email({
+        email: user.email,
+        password: user.password,
+      });
 
-    if (error) {
-      console.log("Login Error:", error);
-      return;
-    }
+      if (error) {
+        console.log("Login Error:", error);
+        setErrorMessage(error.message || "Login failed. Please try again.");
+        return;
+      }
 
-    if (data) {
-      router.push("/");
-      router.refresh();
+      if (data) {
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      setErrorMessage("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    const data = await authClient.signIn.social({
-      provider: "google",
-    });
-    console.log(data)
+    try {
+      setLoading(true);
+      setErrorMessage("");
+
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      setErrorMessage("Google login failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f5f7f9] px-4 py-10">
       {/* Login Card */}
       <div className="w-full max-w-[380px] rounded-2xl border border-gray-100 bg-white px-6 py-7 shadow-xl shadow-gray-200/70 sm:px-8">
+
         {/* Logo */}
         <div className="mb-2 flex justify-center">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#10b99f] to-[#078b80] text-white shadow-md">
@@ -80,6 +102,7 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <form onSubmit={handleLoginIn} className="space-y-4">
+
           {/* Email */}
           <div>
             <label
@@ -150,13 +173,21 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {/* Error Message */}
+          {errorMessage && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+              {errorMessage}
+            </p>
+          )}
+
           {/* Sign In Button */}
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#11998e] py-3 text-sm font-bold text-white shadow-md shadow-teal-100 transition hover:bg-[#087f75]"
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#11998e] py-3 text-sm font-bold text-white shadow-md shadow-teal-100 transition hover:bg-[#087f75] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Sign In
-            <ArrowRight size={16} />
+            {loading ? "Signing In..." : "Sign In"}
+            {!loading && <ArrowRight size={16} />}
           </button>
         </form>
 
@@ -172,9 +203,11 @@ export default function LoginPage() {
         </div>
 
         {/* Google Login */}
-        <button onClick={handleGoogleLogin}
+        <button
+          onClick={handleGoogleLogin}
           type="button"
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3 text-xs font-bold text-gray-800 shadow-sm transition hover:bg-gray-50"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3 text-xs font-bold text-gray-800 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <svg viewBox="0 0 48 48" className="h-4 w-4" aria-hidden="true">
             <path
@@ -194,6 +227,7 @@ export default function LoginPage() {
               d="M43.6 20.5H42V20H24v8h11.3a12 12 0 0 1-4 5.6l6.2 5.2A20 20 0 0 0 44 24c0-1.2-.1-2.3-.4-3.5Z"
             />
           </svg>
+
           Continue with Google
         </button>
 

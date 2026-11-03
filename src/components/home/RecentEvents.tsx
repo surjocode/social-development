@@ -1,9 +1,15 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, MapPin, Users } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  MapPin,
+  Users,
+} from "lucide-react";
 
 type Event = {
   _id: string;
@@ -11,12 +17,19 @@ type Event = {
   category: string;
   image: string;
   location: string;
-  eventDate: string;
+  eventDate?: string;
+  startDate?: string;
   description: string;
   organizer?: string;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+type EventsResponse = {
+  result?: Event[];
+  events?: Event[];
+};
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function RecentEvents() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -26,16 +39,33 @@ export default function RecentEvents() {
   useEffect(() => {
     const fetchRecentEvents = async () => {
       try {
-        setLoading(true);
-
         const response = await fetch(`${API_URL}/recent-events`);
 
         if (!response.ok) {
-          throw new Error("Failed to fetch recent events");
+          throw new Error(
+            `Failed to fetch recent events: ${response.status}`
+          );
         }
 
-        const data = await response.json();
-        setEvents(data);
+        const data: Event[] | EventsResponse =
+          await response.json();
+
+        console.log("Recent Events API Response:", data);
+
+        // Handle different backend response structures
+        let eventsData: Event[];
+
+        if (Array.isArray(data)) {
+          eventsData = data;
+        } else if (Array.isArray(data.result)) {
+          eventsData = data.result;
+        } else if (Array.isArray(data.events)) {
+          eventsData = data.events;
+        } else {
+          throw new Error("Invalid API response format");
+        }
+
+        setEvents(eventsData);
       } catch (err) {
         console.error("Recent events error:", err);
         setError("Unable to load recent events.");
@@ -47,7 +77,7 @@ export default function RecentEvents() {
     fetchRecentEvents();
   }, []);
 
-  const formatDate = (date: string) => {
+  const formatDate = (date?: string) => {
     if (!date) return "Date not available";
 
     const parsedDate = new Date(date);
@@ -67,6 +97,7 @@ export default function RecentEvents() {
   return (
     <section className="bg-slate-50 px-5 py-16 md:py-20">
       <div className="mx-auto max-w-7xl">
+
         {/* Section Heading */}
         <div className="mb-12 flex flex-col items-center justify-center gap-5 text-center">
           <div>
@@ -84,6 +115,7 @@ export default function RecentEvents() {
             </p>
           </div>
         </div>
+
         <div className="mb-10 flex flex-col items-end justify-end gap-5">
           <Link
             href="/upcoming-events"
@@ -108,7 +140,9 @@ export default function RecentEvents() {
 
         {/* Error */}
         {!loading && error && (
-          <p className="py-10 text-center text-red-500">{error}</p>
+          <p className="py-10 text-center text-red-500">
+            {error}
+          </p>
         )}
 
         {/* Empty State */}
@@ -139,7 +173,7 @@ export default function RecentEvents() {
                   {event.image ? (
                     <Image
                       src={event.image}
-                      alt={event.title}
+                      alt={event.title || "Event image"}
                       fill
                       unoptimized
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -157,8 +191,11 @@ export default function RecentEvents() {
 
                   {/* Date */}
                   <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-lg bg-slate-900/80 px-3 py-2 text-xs font-medium text-white backdrop-blur">
-                    <CalendarDays size={14} className="text-emerald-400" />
-                    {formatDate(event.eventDate)}
+                    <CalendarDays
+                      size={14}
+                      className="text-emerald-400"
+                    />
+                    {formatDate(event.startDate || event.eventDate)}
                   </div>
                 </div>
 
@@ -169,8 +206,13 @@ export default function RecentEvents() {
                   </h3>
 
                   <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
-                    <MapPin size={16} className="shrink-0 text-emerald-600" />
-                    <span className="line-clamp-1">{event.location}</span>
+                    <MapPin
+                      size={16}
+                      className="shrink-0 text-emerald-600"
+                    />
+                    <span className="line-clamp-1">
+                      {event.location}
+                    </span>
                   </div>
 
                   <p className="mt-3 line-clamp-2 min-h-10 text-sm leading-6 text-slate-500">
@@ -180,7 +222,10 @@ export default function RecentEvents() {
                   {/* Organizer & View Event */}
                   <div className="mt-auto border-t border-slate-100 pt-4">
                     <div className="mb-4 flex items-center gap-2 text-xs text-slate-500">
-                      <Users size={15} className="text-emerald-600" />
+                      <Users
+                        size={15}
+                        className="text-emerald-600"
+                      />
 
                       <span className="line-clamp-1">
                         {event.organizer || "Community Organizer"}

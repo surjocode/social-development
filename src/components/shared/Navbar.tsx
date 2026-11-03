@@ -84,8 +84,7 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   const user = session?.user;
-  console.log("USER IMAGE:", user?.image);
-  console.log("USER DATA:", user);
+ 
 
   const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
 

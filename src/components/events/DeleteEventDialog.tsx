@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { authClient } from "@/lib/auth-client";
 
 type DeleteEventDialogProps = {
   event: {
@@ -30,17 +31,33 @@ const DeleteEventDialog = ({
     try {
       setLoading(true);
 
+      // Get JWT token from Better Auth
+      const tokenData = await authClient.token();
+      const token = tokenData.data?.token;
+
+      if (!token) {
+        throw new Error(
+          "Authentication token not found. Please login again."
+        );
+      }
+
+      // Send DELETE request with JWT
       const response = await fetch(
         `http://localhost:8000/dashboard/delete-event/${event._id}`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to delete event");
+        throw new Error(
+          data.message || "Failed to delete event"
+        );
       }
 
       alert("Event deleted successfully!");
@@ -86,8 +103,8 @@ const DeleteEventDialog = ({
           </DialogTitle>
 
           <DialogDescription>
-            Are you sure you want to delete &quot;{event.title}&quot;? This action cannot
-            be undone.
+            Are you sure you want to delete "{event.title}"? This action
+            cannot be undone.
           </DialogDescription>
         </DialogHeader>
 

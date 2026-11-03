@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -58,15 +57,30 @@ export default function ManageEventsPage() {
       try {
         setLoading(true);
 
-        const response = await fetch(
-          `http://localhost:8000/my-created-events/${encodeURIComponent(user.email)}`
-        );
+        // Get JWT token
+        const tokenData = await authClient.token();
+        const token = tokenData.data?.token;
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch events");
+        if (!token) {
+          throw new Error("Authentication token not found. Please login again.");
         }
 
-        const data: Event[] = await response.json();
+        // Fetch my created events
+        const response = await fetch(
+          `http://localhost:8000/my-created-events/${encodeURIComponent(user.email)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch events");
+        }
 
         setEvents(data);
       } catch (error) {
@@ -148,7 +162,6 @@ export default function ManageEventsPage() {
                 key={event._id}
                 className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
-
                 {/* Event Image */}
                 <div className="relative h-48 overflow-hidden">
                   {event.image &&

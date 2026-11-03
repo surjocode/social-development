@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Josefin_Sans, Geist } from "next/font/google";
 import "./globals.css";
@@ -10,6 +9,7 @@ import Footer from "@/components/shared/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ThemeProvider } from "@/components/home/ThemeProvider";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -43,20 +43,20 @@ export default function RootLayout({
         "h-full",
         "antialiased",
         josefinSans.className,
-        geist.variable
+        geist.variable,
       )}
     >
       <body className="min-h-full flex flex-col">
-        <Navbar />
+        <ThemeProvider>
+          <Navbar />
 
-        <main className="flex-1 pt-24">
-          {children}
-        </main>
+          <main className="flex-1 pt-24">{children}</main>
 
-        <Footer />
+          <Footer />
 
-        <Toaster position="top-right" richColors />
-        <ToastContainer position="top-right" autoClose={3000} />
+          <Toaster position="top-right" richColors />
+          <ToastContainer position="top-right" autoClose={3000} />
+        </ThemeProvider>
       </body>
     </html>
   );

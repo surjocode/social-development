@@ -5,15 +5,18 @@ import GallerySection from "@/components/home/GallerySection";
 import ImpactSection from "@/components/home/ImpactSection";
 import AboutSection from "@/components/home/AboutSection";
 
+
 export default function Home() {
   return (
     <>
-      <HeroSection />
-      <PlatformFeatures />
-      <RecentEvents />
-      <GallerySection />
-      <AboutSection />
-      <ImpactSection />
+      
+        <HeroSection />
+        <PlatformFeatures />
+        <RecentEvents />
+        <GallerySection />
+        <AboutSection />
+        <ImpactSection />
+    
     </>
   );
 }

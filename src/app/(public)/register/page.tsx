@@ -25,6 +25,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const router = useRouter();
 
@@ -49,6 +50,7 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
+    setErrorMessage("");
 
     try {
       const formData = new FormData(e.currentTarget);
@@ -69,6 +71,9 @@ export default function RegisterPage() {
 
       if (error) {
         console.log("Register Error:", error);
+        setErrorMessage(
+          error.message || "Registration failed. Please try again."
+        );
         return;
       }
 
@@ -77,7 +82,8 @@ export default function RegisterPage() {
         router.refresh();
       }
     } catch (error) {
-      console.log("Registration Failed:", error);
+      console.error("Registration Failed:", error);
+      setErrorMessage("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -107,7 +113,10 @@ export default function RegisterPage() {
 
           {/* Full Name */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-gray-800">
+            <label
+              htmlFor="name"
+              className="mb-1.5 block text-xs font-semibold text-gray-800"
+            >
               Full Name
             </label>
 
@@ -115,10 +124,13 @@ export default function RegisterPage() {
               <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
 
               <input
+                id="name"
                 type="text"
                 name="name"
                 placeholder="Tanvir Ahmed"
                 required
+                minLength={2}
+                maxLength={100}
                 className={inputClasses}
               />
             </div>
@@ -126,7 +138,10 @@ export default function RegisterPage() {
 
           {/* Email */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-gray-800">
+            <label
+              htmlFor="email"
+              className="mb-1.5 block text-xs font-semibold text-gray-800"
+            >
               Email Address
             </label>
 
@@ -134,6 +149,7 @@ export default function RegisterPage() {
               <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
 
               <input
+                id="email"
                 type="email"
                 name="email"
                 placeholder="name@example.com"
@@ -145,7 +161,10 @@ export default function RegisterPage() {
 
           {/* Profile Photo */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-gray-800">
+            <label
+              htmlFor="photoURL"
+              className="mb-1.5 block text-xs font-semibold text-gray-800"
+            >
               Profile Photo URL
             </label>
 
@@ -153,6 +172,7 @@ export default function RegisterPage() {
               <ImageIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
 
               <input
+                id="photoURL"
                 type="url"
                 name="photoURL"
                 placeholder="https://images.unsplash.com/..."
@@ -167,7 +187,10 @@ export default function RegisterPage() {
 
           {/* Password */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-gray-800">
+            <label
+              htmlFor="password"
+              className="mb-1.5 block text-xs font-semibold text-gray-800"
+            >
               Password
             </label>
 
@@ -175,12 +198,14 @@ export default function RegisterPage() {
               <LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
 
               <input
+                id="password"
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
+                minLength={6}
                 className={`${inputClasses} pr-11`}
               />
 
@@ -218,6 +243,13 @@ export default function RegisterPage() {
               ))}
             </div>
           </div>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+              {errorMessage}
+            </p>
+          )}
 
           {/* Register Button */}
           <button
