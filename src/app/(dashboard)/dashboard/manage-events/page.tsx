@@ -67,7 +67,7 @@ export default function ManageEventsPage() {
 
         // Fetch my created events
         const response = await fetch(
-          `http://localhost:8000/my-created-events/${encodeURIComponent(user.email)}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/my-created-events/${encodeURIComponent(user.email)}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

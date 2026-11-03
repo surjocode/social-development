@@ -2,7 +2,7 @@
 import UpcomingEventsList from "@/components/events/UpcomingEventsList";
 
 const UpcomingEvents = async () => {
-  const res = await fetch("http://localhost:8000/upcoming-events", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upcoming-events`, {
     cache: "no-store",
   });
 

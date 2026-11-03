@@ -22,18 +22,19 @@ type EventDetailsPageProps = {
   }>;
 };
 
+const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+).replace(/\/$/, "");
+
 const EventDetailsPage = async ({
   params,
 }: EventDetailsPageProps) => {
   const { id } = await params;
 
-  // Fetch event details (Public API)
-  const res = await fetch(
-    `http://localhost:8000/events/${id}`,
-    {
-      cache: "no-store",
-    }
-  );
+  // Fetch event details
+  const res = await fetch(`${API_URL}/events/${id}`, {
+    cache: "no-store",
+  });
 
   if (res.status === 404) {
     notFound();
@@ -52,9 +53,9 @@ const EventDetailsPage = async ({
   }
 
   // Format event date
-  const eventDate = new Date(
-    event.startDate || event.eventDate
-  );
+  const dateValue = event.startDate || event.eventDate || "";
+
+  const eventDate = new Date(dateValue);
 
   const formattedDate = !isNaN(eventDate.getTime())
     ? eventDate.toLocaleDateString("en-US", {
@@ -65,13 +66,14 @@ const EventDetailsPage = async ({
       })
     : "Date not available";
 
+  // Joined volunteers count
   const joinedCount =
-    "joined" in event && typeof event.joined === "number"
-      ? event.joined
-      : 0;
+    typeof event.joined === "number" ? event.joined : 0;
 
+  // Validate event image
   const validImage =
-    event.image && /^https?:\/\//i.test(event.image);
+    typeof event.image === "string" &&
+    /^https?:\/\//i.test(event.image);
 
   return (
     <main className="min-h-screen bg-[#f5f7f9] px-4 py-8 sm:px-6 lg:px-8">
@@ -93,7 +95,7 @@ const EventDetailsPage = async ({
           <div className="relative h-[280px] sm:h-[340px] lg:h-[390px]">
             {validImage ? (
               <Image
-                src={event.image}
+                src={event.image!}
                 alt={event.title || "Event image"}
                 fill
                 priority

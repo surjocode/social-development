@@ -73,7 +73,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
 
       // Send PATCH request with JWT
       const response = await fetch(
-        `http://localhost:8000/dashboard/update-event/${event._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/dashboard/update-event/${event._id}`,
         {
           method: "PATCH",
           headers: {

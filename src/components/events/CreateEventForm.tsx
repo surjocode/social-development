@@ -110,7 +110,7 @@ const CreateEventForm = () => {
 
       // Send event data with JWT token
       const res = await fetch(
-        "http://localhost:8000/dashboard/create-event",
+        `${process.env.NEXT_PUBLIC_API_URL}/dashboard/create-event`,
         {
           method: "POST",
           headers: {

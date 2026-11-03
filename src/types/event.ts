@@ -6,8 +6,11 @@ export type Event = {
   image: string;
   location: string;
   date: string;
+  startDate?: string;
+  eventDate?: string;
   description: string;
   organizer: string;
+  email: string;
   joined: number;
   status: "upcoming" | "completed" | "cancelled";
 };

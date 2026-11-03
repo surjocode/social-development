@@ -43,7 +43,7 @@ const DeleteEventDialog = ({
 
       // Send DELETE request with JWT
       const response = await fetch(
-        `http://localhost:8000/dashboard/delete-event/${event._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/dashboard/delete-event/${event._id}`,
         {
           method: "DELETE",
           headers: {

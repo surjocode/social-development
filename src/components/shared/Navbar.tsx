@@ -11,7 +11,6 @@ import {
   CalendarDays,
   Info,
   Images,
-  Newspaper,
   Menu,
   LogOut,
   User,
@@ -50,7 +49,7 @@ const navLinks = [
   },
   { name: "Gallery", href: "/#gallery", icon: Images },
   { name: "About", href: "/#about", icon: Info },
-]
+];
 
 const dashboardLinks = [
   {
@@ -84,7 +83,6 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   const user = session?.user;
- 
 
   const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
 
