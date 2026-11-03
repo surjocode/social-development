@@ -1,9 +1,11 @@
-      import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 
 import {
   ArrowRight,
   CalendarDays,
+  CheckCircle2,
+  HeartHandshake,
   Leaf,
   Sprout,
   Users,
@@ -17,96 +19,152 @@ const stats = [
 
 const HeroSection = () => {
   return (
-    <section className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-gradient-to-br from-green-100/70 via-green-50 to-white sm:mx-4 lg:mx-auto">
-      <div className="relative lg:grid lg:grid-cols-2">
-        {/* City skyline decoration */}
-        <svg
-          className="pointer-events-none absolute bottom-0 left-0 h-28 w-full max-w-2xl text-white/70 sm:w-2/3"
-          viewBox="0 0 200 60"
-          preserveAspectRatio="none"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path d="M0 60 H0 V38 h7 v-10 h5 v10 h8 V26 h4 v-6 h3 v6 h6 v12 h8 V34 h7 V22 h4 v12 h6 v24 h6 V30 h5 v-8 h6 v8 h7 V18 h5 v12 h8 V40 h7 v20 h5 V32 h6 V24 h4 v8 h6 v28 h8 V42 h6 v18 h7 V34 h5 v26 h9 V46 h6 v14 h8 V36 h5 v24 h9 V48 h7 v12 H0 Z" />
-        </svg>
+    <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+      <div className="relative overflow-hidden rounded-[2rem] border border-green-100 bg-gradient-to-br from-green-50 via-white to-emerald-50">
+        {/* Background Decoration */}
+        <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-green-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-emerald-200/30 blur-3xl" />
 
-        {/* Copy */}
-        <div className="relative z-10 flex max-w-xl flex-col justify-center px-6 py-14 sm:px-10 lg:py-24 lg:pl-14">
-          <div className="mb-4 flex items-center gap-1" aria-hidden="true">
-            <Sprout className="h-9 w-9 -scale-x-100 text-green-700" />
-            <Leaf className="h-5 w-5 -translate-y-3 text-green-600" />
-          </div>
+        <div className="relative grid items-center lg:grid-cols-2">
+          {/* Hero Content */}
+          <div className="relative z-10 px-6 py-14 sm:px-10 sm:py-20 lg:py-24 lg:pl-14">
+            {/* Badge */}
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-green-200 bg-white/80 px-4 py-2 shadow-sm">
+              <span className="flex h-2 w-2 rounded-full bg-green-500" />
+              <span className="text-xs font-semibold tracking-wide text-green-800 sm:text-sm">
+                Community Driven Initiative
+              </span>
+            </div>
 
-          <h1 className="text-4xl font-bold tracking-tight text-green-950 sm:text-5xl lg:text-6xl">
-            Small Actions.
-            <br />
-            <span className="text-green-600">Big Changes.</span>
-          </h1>
+            {/* Decorative Icons */}
+            <div className="mb-5 flex items-center gap-2">
+              <Sprout className="h-9 w-9 -scale-x-100 text-green-700" />
+              <Leaf className="h-5 w-5 -translate-y-3 text-green-500" />
+            </div>
 
-          <p className="mt-5 max-w-sm text-base text-foreground/70">
-            Join our community events to support the needy and build a
-            greener tomorrow.
-          </p>
+            {/* Heading */}
+            <h1 className="max-w-xl text-4xl font-extrabold leading-[1.15] tracking-tight text-green-950 sm:text-5xl lg:text-6xl">
+              Small Actions.
+              <br />
+              <span className="text-green-600">Big Changes.</span>
+            </h1>
 
-          <Link
-            href="/upcoming-events"
-            className="group mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-green-800 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-green-900"
-          >
-            Explore Events
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </div>
+            {/* Description */}
+            <p className="mt-6 max-w-md text-base leading-8 text-gray-600 sm:text-lg">
+              Together, we can make a difference. Join our community events,
+              support those in need, and help build a greener and more
+              compassionate tomorrow.
+            </p>
 
-        {/* Photo */}
-        <div className="relative mt-4 h-64 sm:h-80 lg:mt-0 lg:h-auto lg:min-h-[520px]">
-          <Image
-            src="/images/Greens%20of%20Hope%20Food%20Distribution.png"
-            alt="Helping Hands volunteers handing out food and essential supplies to community members"
-            fill
-            priority
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover object-[72%_30%]"
-          />
-
-          {/* Blend the photo into the light background */}
-          <div
-            className="absolute inset-y-0 left-0 hidden w-36 bg-gradient-to-r from-green-50 to-transparent lg:block"
-            aria-hidden="true"
-          />
-        </div>
-      </div>
-
-      {/* Stats pill */}
-      <div className="relative z-10 mx-auto -mt-12 mb-6 w-fit max-w-[calc(100%-3rem)] rounded-2xl border border-border/60 bg-white/95 px-6 py-4 shadow-lg backdrop-blur sm:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-0">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-
-            return (
-              <div
-                key={stat.label}
-                className={`flex items-center gap-3 ${
-                  index > 0
-                    ? "sm:ml-8 sm:border-l sm:border-border sm:pl-8"
-                    : ""
-                }`}
+            {/* Buttons */}
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <Link
+                href="/upcoming-events"
+                className="group inline-flex items-center gap-3 rounded-full bg-green-800 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-green-900/15 transition-all duration-300 hover:-translate-y-1 hover:bg-green-900 hover:shadow-xl"
               >
-                <Icon
-                  className="h-7 w-7 shrink-0 text-green-800"
-                  aria-hidden="true"
-                />
+                Explore Events
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
 
-                <div>
-                  <p className="text-lg font-bold leading-tight text-green-900">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {stat.label}
-                  </p>
+              <Link
+                href="/create-event"
+                className="inline-flex items-center gap-2 rounded-full border border-green-700 px-7 py-3.5 text-sm font-bold text-green-800 transition hover:bg-green-50"
+              >
+                Create Event
+                <ArrowRight size={16} />
+              </Link>
+
+              <div className="flex items-center gap-2 text-sm font-semibold text-green-800">
+                <HeartHandshake className="h-5 w-5" />
+                Make a Difference
+              </div>
+            </div>
+
+            {/* Trust Indicator */}
+            <div className="mt-10 flex items-center gap-3 border-t border-green-200/70 pt-6">
+              <div className="flex -space-x-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-green-200">
+                  <Users className="h-4 w-4 text-green-800" />
+                </div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-emerald-300">
+                  <HeartHandshake className="h-4 w-4 text-green-900" />
+                </div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-lime-200">
+                  <Leaf className="h-4 w-4 text-green-800" />
                 </div>
               </div>
-            );
-          })}
+
+              <div>
+                <p className="text-sm font-bold text-green-950">
+                  Together We Grow
+                </p>
+                <p className="text-xs text-gray-500">
+                  Every small effort matters.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Hero Image */}
+          <div className="relative min-h-[360px] px-5 pb-8 sm:min-h-[460px] sm:px-8 lg:min-h-[600px] lg:px-6 lg:py-8 lg:pr-8">
+            <div className="relative h-[340px] overflow-hidden rounded-[1.7rem] shadow-2xl shadow-green-950/15 sm:h-[440px] lg:h-full lg:min-h-[540px]">
+              <Image
+                src="/images/Greens%20of%20Hope%20Food%20Distribution.png"
+                alt="Helping Hands volunteers distributing food and essential supplies"
+                fill
+                priority
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover object-[72%_30%] transition-transform duration-700 hover:scale-105"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-green-950/35 via-transparent to-transparent" />
+            </div>
+
+            {/* Floating Information Card */}
+            <div className="absolute bottom-12 left-8 flex max-w-[270px] items-center gap-3 rounded-2xl border border-white/70 bg-white/95 p-4 shadow-xl backdrop-blur-md sm:bottom-16 sm:left-12 lg:bottom-16 lg:left-0">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100">
+                <CheckCircle2 className="h-6 w-6 text-green-700" />
+              </div>
+
+              <div>
+                <p className="text-sm font-bold text-green-950">
+                  Every Act Counts
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Creating positive change together.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Statistics Section */}
+        <div className="relative border-t border-green-100 bg-white/75 px-6 py-8 backdrop-blur-sm sm:px-10 lg:px-14">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
+
+              return (
+                <div
+                  key={stat.label}
+                  className="flex items-center justify-center gap-4 sm:justify-start"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700">
+                    <Icon size={22} />
+                  </div>
+
+                  <div>
+                    <p className="text-2xl font-extrabold tracking-tight text-green-950">
+                      {stat.value}
+                    </p>
+                    <p className="mt-0.5 text-xs font-medium text-gray-500 sm:text-sm">
+                      {stat.label}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
