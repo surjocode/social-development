@@ -1,36 +1,260 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💚 Helping Hands — Make Good Happen
 
-## Getting Started
+Helping Hands is a community-driven social development platform that connects volunteers with meaningful events and initiatives. It helps people discover upcoming events, participate in social activities, and work together to create positive changes in society.
 
-First, run the development server:
+> **Our Mission: Small Actions. Big Changes.**
+
+🌐 **Live Website:** [Visit Helping Hands](https://social-development-chi.vercel.app/)
+
+---
+
+## 🌟 Key Features
+
+- 🔐 **User Authentication:** Secure email and password authentication using Better Auth.
+- 🌐 **Google Login:** Sign in easily using Google authentication.
+- 📅 **Upcoming Events:** Browse upcoming social development events.
+- 🔍 **Event Details:** Explore event descriptions, locations, organizers, and dates.
+- ➕ **Create Events:** Authenticated users can create social service events.
+- 📝 **Manage Events:** Update and delete events created by the logged-in user.
+- 🤝 **Join Events:** Join community events and contribute to society.
+- 📋 **Joined Events:** View and track all joined events.
+- 👤 **User Profile:** Access user profile information.
+- 📸 **Community Gallery:** Explore photographs of social activities.
+- 🌙 **Dark & Light Mode:** Switch between light and dark themes.
+- 📱 **Responsive Design:** Optimized for desktop, tablet, and mobile devices.
+- ✨ **Modern UI:** Clean interface built with Tailwind CSS and Lucide icons.
+
+---
+
+## 🛠️ Technologies Used
+
+### Frontend
+
+- Next.js (App Router)
+- React
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Lucide React
+- Sonner
+- React Toastify
+
+### Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Better Auth
+- JSON Web Token (JWT)
+- JOSE
+
+### Tools & Services
+
+- Git & GitHub
+- Visual Studio Code
+- Vercel
+
+---
+
+## 📂 Project Structure
+
+```text
+social-development/
+│
+├── public/
+│   └── images/
+│      
+│
+├── src/
+│   ├── app/
+│   │   ├── (public)/
+│   │   ├── dashboard/
+│   │   ├── auth/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── loading.tsx
+│   │   ├── not-found.tsx
+│   │   └── globals.css
+│   │
+│   ├── components/
+│   │   ├── auth/
+│   │   ├── home/
+│   │   ├── events/
+│   │   ├── dashboard/
+│   │   ├── shared/
+│   │   └── ui/
+│   │
+│   └── lib/
+│       ├── auth-client.ts
+│       └── utils.ts
+│
+├── .env
+├── .gitignore
+├── package.json
+├── tsconfig.json
+├── next.config.ts
+└── README.md
+```
+
+*Note: This is an overview of the client-side project structure. Actual files and folders may vary.*
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone the Repository
+
+```bash
+git https://github.com/surjocode/social-development-server
+```
+
+### 2. Navigate to the Project
+
+```bash
+cd social-development
+```
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Configure Environment Variables
+
+Create a `.env l` file in the frontend root directory.
+
+Add the required environment variables:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+BETTER_AUTH_URL=http://localhost:3000
+
+MONGODB_URL=your_mongodb_connection_string
+
+GOOGLE_CLIENT_ID=your_google_client_id
+
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+BETTER_AUTH_SECRET=your_secure_secret
+```
+
+Configure the corresponding environment variables in the backend `.env` file.
+
+**Important:** Never upload real API keys, database credentials, or authentication secrets to GitHub.
+
+### 5. Run the Frontend
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Frontend:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 6. Run the Backend
 
-## Learn More
+Open another terminal and navigate to your backend project directory.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Backend API:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```text
+http://localhost:8000
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔐 Authentication & Security
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Helping Hands uses Better Auth for user authentication and JWT for API authorization.
+
+- Email and password authentication.
+- Google social authentication.
+- Secure session management.
+- JWT-based API authentication.
+- Protected dashboard routes.
+- User-specific event management.
+
+---
+
+## 📅 Event Management
+
+Users can explore and participate in community events.
+
+Available functionalities:
+
+- Create new social development events.
+- Browse upcoming events.
+- View detailed event information.
+- Join and leave events.
+- Manage created events.
+- Update and delete personal events.
+- View joined events.
+
+---
+
+## 🎨 User Interface
+
+The platform includes:
+
+- Modern and responsive navigation.
+- Community-focused hero section.
+- Platform features section.
+- Recent upcoming events.
+- Community gallery.
+- Newsletter subscription design.
+- About section.
+- Impact statistics.
+- Responsive footer.
+- Dark and light themes.
+- Custom loading and 404 pages.
+
+---
+
+## 🚀 Future Improvements
+
+- Advanced event search and filtering.
+- Volunteer activity tracking.
+- Event notifications.
+- Admin dashboard.
+- Event reviews and feedback.
+- Enhanced community engagement.
+
+---
+
+## 🤝 Contribution
+
+Contributions, suggestions, and improvements are welcome!
+
+1. Fork the repository.
+2. Create a new branch.
+3. Make your changes.
+4. Commit your changes.
+5. Submit a pull request.
+
+---
+
+## 👨‍💻 Developer
+
+**Piel Mitra**
+
+- GitHub: [surjocode](https://github.com/surjocode)
+- LinkedIn: [Piel Mitra](https://www.linkedin.com/in/piel-mitra-1743322ba/)
+
+---
+
+## 💚 Our Mission
+
+We believe every small act of kindness can create a meaningful impact.
+
+**Join Helping Hands. Make Good Happen.**
