@@ -72,8 +72,12 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
       }
 
       // Send PATCH request with JWT
+      const API_URL = (
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      ).replace(/\/$/, "");
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/dashboard/update-event/${event._id}`,
+        `${API_URL}/dashboard/update-event/${event._id}`,
         {
           method: "PATCH",
           headers: {
@@ -109,9 +113,15 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
     }
   };
 
+  const inputClasses =
+    "w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-teal-600 focus:bg-white dark:border-gray-700 dark:bg-[#101C16] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-emerald-500 dark:focus:bg-[#14251B]";
+
+  const labelClasses =
+    "mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="flex h-9 items-center justify-center gap-1 rounded-lg bg-indigo-50 px-3 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100">
+      <DialogTrigger className="flex h-9 items-center justify-center gap-1 rounded-lg bg-indigo-50 px-3 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/60">
         <svg
           className="h-4 w-4"
           fill="none"
@@ -128,13 +138,13 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
         Edit
       </DialogTrigger>
 
-      <DialogContent className="!h-[90vh] !w-[45vw] !max-w-[900px] overflow-y-auto rounded-3xl bg-white p-6 sm:p-8">
+      <DialogContent className="!h-[90vh] !w-[90vw] !max-w-[900px] overflow-y-auto rounded-3xl border border-gray-200 bg-white p-6 text-gray-900 shadow-xl dark:border-gray-700 dark:bg-[#14251B] dark:text-gray-100 sm:!w-[45vw] sm:p-8">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-900 sm:text-2xl">
+          <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
             Update Event
           </DialogTitle>
 
-          <DialogDescription>
+          <DialogDescription className="text-gray-500 dark:text-gray-400">
             Modify the details for your social service initiative.
           </DialogDescription>
         </DialogHeader>
@@ -142,7 +152,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+            <label className={labelClasses}>
               Title
             </label>
 
@@ -152,14 +162,14 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+              className={inputClasses}
             />
           </div>
 
           {/* Category and Date */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+              <label className={labelClasses}>
                 Event Type
               </label>
 
@@ -168,7 +178,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
                 value={formData.category}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+                className={inputClasses}
               >
                 <option value="">Select category</option>
                 <option value="Plantation">Plantation</option>
@@ -181,7 +191,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+              <label className={labelClasses}>
                 Event Date
               </label>
 
@@ -191,14 +201,14 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
                 value={formData.eventDate}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+                className={inputClasses}
               />
             </div>
           </div>
 
           {/* Location */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+            <label className={labelClasses}>
               Location
             </label>
 
@@ -208,13 +218,13 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
               value={formData.location}
               onChange={handleChange}
               required
-              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+              className={inputClasses}
             />
           </div>
 
           {/* Image */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+            <label className={labelClasses}>
               Thumbnail Image URL
             </label>
 
@@ -223,13 +233,13 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
               name="image"
               value={formData.image}
               onChange={handleChange}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+              className={inputClasses}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+            <label className={labelClasses}>
               Description
             </label>
 
@@ -239,17 +249,17 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
               value={formData.description}
               onChange={handleChange}
               required
-              className="w-full resize-y rounded-xl border border-gray-200 bg-gray-50/50 p-4 text-sm text-gray-900 transition focus:border-teal-600 focus:bg-white focus:outline-none"
+              className={`${inputClasses} resize-y p-4`}
             />
           </div>
 
           {/* Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4">
+          <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4 dark:border-gray-700">
             <button
               type="button"
               onClick={() => setOpen(false)}
               disabled={loading}
-              className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-[#182820] dark:text-gray-300 dark:hover:bg-[#20382B]"
             >
               Cancel
             </button>
@@ -257,7 +267,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
             <button
               type="submit"
               disabled={loading}
-              className="rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-700 dark:hover:bg-emerald-600"
             >
               {loading ? "Updating..." : "Save Changes"}
             </button>

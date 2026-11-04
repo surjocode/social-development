@@ -25,7 +25,10 @@ type Event = {
   description: string;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+).replace(/\/$/, "");
+
 const formatDate = (
   date: string | Date | null | undefined
 ) => {
@@ -114,26 +117,28 @@ const JoinedEventsPage = () => {
     fetchJoinedEvents();
   }, [user?.email, isPending]);
 
+  // Loading State
   if (isPending || loading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <p className="font-medium text-teal-700">
+      <div className="flex min-h-[50vh] items-center justify-center bg-[#f5f7f9] dark:bg-[#101C16]">
+        <p className="font-medium text-teal-700 dark:text-emerald-400">
           Loading joined events...
         </p>
       </div>
     );
   }
 
+  // Login State
   if (!user?.email) {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-        <h2 className="text-xl font-bold text-gray-900">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 bg-[#f5f7f9] dark:bg-[#101C16]">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           Please Login First
         </h2>
 
         <Link
           href="/login"
-          className="rounded-xl bg-teal-700 px-6 py-3 text-sm font-bold text-white"
+          className="rounded-xl bg-teal-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-teal-800 dark:bg-emerald-700 dark:hover:bg-emerald-600"
         >
           Login
         </Link>
@@ -142,20 +147,20 @@ const JoinedEventsPage = () => {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f7f9] px-4 py-10 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#f5f7f9] px-4 py-10 transition-colors duration-300 dark:bg-[#101C16] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         {/* Page Header */}
-        <div className="mb-7 border-b border-gray-200 pb-7">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#e5f5f1] px-3 py-1 text-xs font-bold text-teal-700">
+        <div className="mb-7 border-b border-gray-200 pb-7 dark:border-gray-700">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#e5f5f1] px-3 py-1 text-xs font-bold text-teal-700 dark:bg-emerald-900/40 dark:text-emerald-400">
             <CheckCircle2 size={14} />
             My Volunteer Commitments
           </div>
 
-          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
             Joined Events
           </h1>
 
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500 dark:text-gray-400">
             Here are all the social development and community service drives you
             have signed up for, sorted by event date.
           </p>
@@ -163,25 +168,25 @@ const JoinedEventsPage = () => {
 
         {/* Error */}
         {error && (
-          <p className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-600">
+          <p className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
             {error}
           </p>
         )}
 
         {/* Empty State */}
         {!error && events.length === 0 && (
-          <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center">
-            <h2 className="text-xl font-bold text-gray-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm dark:border-gray-700 dark:bg-[#14251B]">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
               No Joined Events Yet
             </h2>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               You have not joined any events yet.
             </p>
 
             <Link
               href="/upcoming-events"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-teal-700 px-6 py-3 text-sm font-bold text-white"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-teal-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-teal-800 dark:bg-emerald-700 dark:hover:bg-emerald-600"
             >
               Explore Events <ArrowRight size={16} />
             </Link>
@@ -193,7 +198,7 @@ const JoinedEventsPage = () => {
           {events.map((event) => (
             <div
               key={event._id}
-              className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-gray-700 dark:bg-[#14251B]"
             >
               {/* Image */}
               <div className="relative h-48 w-full bg-gradient-to-br from-teal-700 to-emerald-950">
@@ -218,7 +223,7 @@ const JoinedEventsPage = () => {
                 ) : null}
 
                 {/* Category */}
-                <span className="absolute left-3 top-3 rounded-full bg-pink-100 px-3 py-1 text-xs font-bold text-pink-600">
+                <span className="absolute left-3 top-3 rounded-full bg-pink-100 px-3 py-1 text-xs font-bold text-pink-600 dark:bg-pink-950/80 dark:text-pink-300">
                   {event.category}
                 </span>
 
@@ -231,25 +236,25 @@ const JoinedEventsPage = () => {
 
               {/* Card Content */}
               <div className="p-4">
-                <h2 className="text-lg font-bold text-teal-700">
+                <h2 className="text-lg font-bold text-teal-700 dark:text-emerald-400">
                   {event.title}
                 </h2>
 
-                <p className="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
+                <p className="mt-2 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
                   <MapPin
                     size={15}
-                    className="shrink-0 text-teal-600"
+                    className="shrink-0 text-teal-600 dark:text-emerald-400"
                   />
                   {event.location}
                 </p>
 
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-gray-500">
+                <p className="mt-3 line-clamp-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
                   {event.description}
                 </p>
 
                 {/* Joined Date */}
-                <div className="mt-4 border-t border-gray-100 pt-3">
-                  <p className="text-sm font-semibold text-teal-700">
+                <div className="mt-4 border-t border-gray-100 pt-3 dark:border-gray-700">
+                  <p className="text-sm font-semibold text-teal-700 dark:text-emerald-400">
                     Joined {formatDate(event.joinedAt)}
                   </p>
                 </div>

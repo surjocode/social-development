@@ -28,6 +28,8 @@ const DeleteEventDialog = ({
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
+    if (loading) return;
+
     try {
       setLoading(true);
 
@@ -41,9 +43,14 @@ const DeleteEventDialog = ({
         );
       }
 
+      // API URL
+      const API_URL = (
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      ).replace(/\/$/, "");
+
       // Send DELETE request with JWT
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/dashboard/delete-event/${event._id}`,
+        `${API_URL}/dashboard/delete-event/${event._id}`,
         {
           method: "DELETE",
           headers: {
@@ -79,7 +86,8 @@ const DeleteEventDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="flex h-9 items-center justify-center gap-1 rounded-lg bg-rose-50 px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-100">
+      {/* Delete Trigger */}
+      <DialogTrigger className="flex h-9 items-center justify-center gap-1 rounded-lg bg-rose-50 px-3 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-300 dark:hover:bg-rose-900/60">
         <svg
           className="h-4 w-4"
           fill="none"
@@ -96,24 +104,26 @@ const DeleteEventDialog = ({
         Delete
       </DialogTrigger>
 
-      <DialogContent className="w-[95vw] max-w-md rounded-2xl bg-white p-6">
+      {/* Confirmation Dialog */}
+      <DialogContent className="w-[95vw] max-w-md rounded-2xl border border-gray-200 bg-white p-6 text-gray-900 shadow-xl dark:border-gray-700 dark:bg-[#14251B] dark:text-gray-100">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-gray-900">
+          <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
             Delete Event?
           </DialogTitle>
 
-          <DialogDescription>
+          <DialogDescription className="text-sm leading-6 text-gray-500 dark:text-gray-400">
             Are you sure you want to delete "{event.title}"? This action
             cannot be undone.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex justify-end gap-3 pt-5">
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 border-t border-gray-100 pt-5 dark:border-gray-700">
           <button
             type="button"
             onClick={() => setOpen(false)}
             disabled={loading}
-            className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-[#182820] dark:text-gray-300 dark:hover:bg-[#20382B]"
           >
             Cancel
           </button>
@@ -122,7 +132,7 @@ const DeleteEventDialog = ({
             type="button"
             onClick={handleDelete}
             disabled={loading}
-            className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+            className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Deleting..." : "Confirm Delete"}
           </button>

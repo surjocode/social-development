@@ -108,9 +108,14 @@ const CreateEventForm = () => {
         );
       }
 
+      // API URL
+      const API_URL = (
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      ).replace(/\/$/, "");
+
       // Send event data with JWT token
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/dashboard/create-event`,
+        `${API_URL}/dashboard/create-event`,
         {
           method: "POST",
           headers: {
@@ -152,46 +157,51 @@ const CreateEventForm = () => {
     }
   };
 
+  // Light and Dark mode input styles
   const inputStyle =
-    "w-full rounded-xl border border-gray-200 bg-[#F8FAFB] px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-[#159B8D] focus:ring-2 focus:ring-[#159B8D]/10";
+    "w-full rounded-xl border border-gray-200 bg-[#F8FAFB] px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-[#159B8D] focus:ring-2 focus:ring-[#159B8D]/10 dark:border-gray-700 dark:bg-[#101C16] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-emerald-500 dark:focus:bg-[#14251B]";
 
   const labelStyle =
-    "mb-2 block text-sm font-semibold text-gray-700";
+    "mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300";
 
   return (
-    <div className="min-h-screen bg-[#F5F8FA] px-4 py-8">
+    <div className="min-h-screen bg-[#F5F8FA] px-4 py-8 transition-colors duration-300 dark:bg-[#101C16]">
       <div className="mx-auto max-w-2xl">
+        {/* Back Link */}
         <Link
           href="/upcoming-events"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#159B8D]"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-[#159B8D] dark:text-gray-400 dark:hover:text-emerald-400"
         >
           <ArrowLeft size={16} />
           Back to Upcoming Events
         </Link>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+        {/* Form Card */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-colors dark:border-gray-700 dark:bg-[#14251B] sm:p-8">
+          {/* Header */}
           <div className="mb-8">
-            <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#EAF7F5] px-3 py-1 text-xs font-semibold text-[#159B8D]">
+            <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#EAF7F5] px-3 py-1 text-xs font-semibold text-[#159B8D] dark:bg-emerald-950/60 dark:text-emerald-300">
               <CirclePlus size={14} />
               Social Service Drive
             </span>
 
-            <h1 className="text-2xl font-extrabold text-[#172033] sm:text-3xl">
+            <h1 className="text-2xl font-extrabold text-[#172033] dark:text-white sm:text-3xl">
               Create a Community Event
             </h1>
 
-            <p className="mt-2 text-sm leading-6 text-gray-500">
+            <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
               Organize a local relief effort, environmental cleanup, or
               community support drive.
             </p>
           </div>
 
+          {/* Success / Error Message */}
           {message && (
             <div
               className={`mb-5 rounded-xl px-4 py-3 text-sm font-medium ${
                 messageType === "success"
-                  ? "bg-green-50 text-green-700"
-                  : "bg-red-50 text-red-600"
+                  ? "bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300"
+                  : "bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-300"
               }`}
             >
               {message}
@@ -199,6 +209,7 @@ const CreateEventForm = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Event Title */}
             <div>
               <label className={labelStyle}>
                 Event Title <span className="text-red-500">*</span>
@@ -207,7 +218,7 @@ const CreateEventForm = () => {
               <div className="relative">
                 <Type
                   size={17}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                 />
 
                 <input
@@ -220,7 +231,9 @@ const CreateEventForm = () => {
               </div>
             </div>
 
+            {/* Category and Date */}
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {/* Category */}
               <div>
                 <label className={labelStyle}>
                   Event Type <span className="text-red-500">*</span>
@@ -229,7 +242,7 @@ const CreateEventForm = () => {
                 <div className="relative">
                   <Tag
                     size={17}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                   />
 
                   <select
@@ -255,6 +268,7 @@ const CreateEventForm = () => {
                 </div>
               </div>
 
+              {/* Event Date */}
               <div>
                 <label className={labelStyle}>
                   Event Date <span className="text-red-500">*</span>
@@ -263,7 +277,7 @@ const CreateEventForm = () => {
                 <div className="relative">
                   <CalendarDays
                     size={17}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                   />
 
                   <input
@@ -275,12 +289,13 @@ const CreateEventForm = () => {
                   />
                 </div>
 
-                <p className="mt-2 text-[11px] text-gray-400">
+                <p className="mt-2 text-[11px] text-gray-400 dark:text-gray-500">
                   Dates must be today or later.
                 </p>
               </div>
             </div>
 
+            {/* Location */}
             <div>
               <label className={labelStyle}>
                 Location / Venue <span className="text-red-500">*</span>
@@ -289,7 +304,7 @@ const CreateEventForm = () => {
               <div className="relative">
                 <MapPin
                   size={17}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                 />
 
                 <input
@@ -302,6 +317,7 @@ const CreateEventForm = () => {
               </div>
             </div>
 
+            {/* Image URL */}
             <div>
               <label className={labelStyle}>
                 Thumbnail Image URL{" "}
@@ -311,7 +327,7 @@ const CreateEventForm = () => {
               <div className="relative">
                 <ImageIcon
                   size={17}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                 />
 
                 <input
@@ -325,8 +341,9 @@ const CreateEventForm = () => {
                 />
               </div>
 
+              {/* Image Presets */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
-                <span className="text-gray-400">
+                <span className="text-gray-400 dark:text-gray-500">
                   Quick photo presets:
                 </span>
 
@@ -335,7 +352,7 @@ const CreateEventForm = () => {
                     key={preset.name}
                     type="button"
                     onClick={() => setImageUrl(preset.url)}
-                    className="font-medium text-[#159B8D] transition hover:text-[#116F66] hover:underline"
+                    className="font-medium text-[#159B8D] transition hover:text-[#116F66] hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
                   >
                     {preset.name}
                   </button>
@@ -343,6 +360,7 @@ const CreateEventForm = () => {
               </div>
             </div>
 
+            {/* Description */}
             <div>
               <label className={labelStyle}>
                 Event Description{" "}
@@ -358,20 +376,22 @@ const CreateEventForm = () => {
               />
             </div>
 
-            <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-100 bg-[#F8FAFB] px-4 py-3 sm:flex-row sm:items-center">
-              <span className="text-xs text-gray-500">
+            {/* Organizer Email */}
+            <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-100 bg-[#F8FAFB] px-4 py-3 transition-colors dark:border-gray-700 dark:bg-[#101C16] sm:flex-row sm:items-center">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 Organizer Email
               </span>
 
-              <span className="text-xs font-semibold text-gray-700">
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
                 {user?.email || "Login required"}
               </span>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting || isPending}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#159B8D] px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#117D73] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#159B8D] px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#117D73] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-700 dark:hover:bg-emerald-600"
             >
               <CirclePlus size={17} />
               {isSubmitting ? "Publishing..." : "Publish Event"}

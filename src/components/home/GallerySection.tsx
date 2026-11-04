@@ -15,8 +15,9 @@ type CompletedEvent = {
   status: string;
 };
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+).replace(/\/$/, "");
 
 export default function GallerySection() {
   const [events, setEvents] = useState<CompletedEvent[]>([]);
@@ -55,22 +56,24 @@ export default function GallerySection() {
   return (
     <section
       id="gallery"
-      className="bg-white px-5 py-16 md:py-20"
+      className="bg-white px-5 py-16 transition-colors duration-300 dark:bg-[#101C16] md:py-20"
     >
       <div className="mx-auto max-w-7xl">
         {/* Section Heading */}
         <div className="mb-12 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
               Our Memories
             </span>
 
-            <h2 className="mt-3 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-extrabold text-slate-900 dark:text-white sm:text-4xl">
               Our Community{" "}
-              <span className="text-emerald-600">Gallery</span>
+              <span className="text-emerald-600 dark:text-emerald-400">
+                Gallery
+              </span>
             </h2>
 
-            <p className="mt-3 max-w-xl text-sm leading-7 text-slate-500 sm:text-base">
+            <p className="mt-3 max-w-xl text-sm leading-7 text-slate-500 dark:text-slate-400 sm:text-base">
               Moments of kindness, teamwork, and positive change from our
               completed community events.
             </p>
@@ -83,7 +86,7 @@ export default function GallerySection() {
             {[1, 2, 3, 4, 5, 6].map((item) => (
               <div
                 key={item}
-                className="h-72 animate-pulse rounded-3xl bg-slate-200"
+                className="h-72 animate-pulse rounded-3xl bg-slate-200 dark:bg-slate-800"
               />
             ))}
           </div>
@@ -91,19 +94,21 @@ export default function GallerySection() {
 
         {/* Error */}
         {!loading && error && (
-          <p className="py-10 text-center text-red-500">{error}</p>
+          <p className="py-10 text-center text-red-500 dark:text-red-400">
+            {error}
+          </p>
         )}
 
         {/* Empty State */}
         {!loading && !error && events.length === 0 && (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center">
-            <ImageIcon className="mx-auto mb-4 h-10 w-10 text-slate-400" />
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 py-16 text-center transition-colors dark:border-slate-700 dark:bg-[#182820]">
+            <ImageIcon className="mx-auto mb-4 h-10 w-10 text-slate-400 dark:text-slate-500" />
 
-            <h3 className="text-lg font-bold text-slate-800">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">
               No Completed Events Yet
             </h3>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Completed event photos will appear here.
             </p>
           </div>
@@ -116,8 +121,9 @@ export default function GallerySection() {
               <Link
                 key={event._id}
                 href={`/events/${event._id}`}
-                className="group relative block h-72 overflow-hidden rounded-3xl bg-slate-100 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="group relative block h-72 overflow-hidden rounded-3xl bg-slate-100 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:bg-[#182820] dark:shadow-black/20"
               >
+                {/* Event Image */}
                 {event.image ? (
                   <Image
                     src={event.image}
@@ -128,7 +134,7 @@ export default function GallerySection() {
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center">
-                    <ImageIcon className="h-12 w-12 text-slate-400" />
+                    <ImageIcon className="h-12 w-12 text-slate-400 dark:text-slate-500" />
                   </div>
                 )}
 
@@ -144,15 +150,18 @@ export default function GallerySection() {
                     </span>
                   </div>
 
+                  {/* Event Title */}
                   <h3 className="text-lg font-bold leading-snug transition-colors group-hover:text-emerald-300">
                     {event.title}
                   </h3>
 
+                  {/* Event Location */}
                   <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-white/80">
                     <MapPin
                       size={14}
                       className="shrink-0 text-emerald-400"
                     />
+
                     <span className="line-clamp-1">
                       {event.location}
                     </span>

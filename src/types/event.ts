@@ -12,5 +12,6 @@ export type Event = {
   organizer: string;
   email: string;
   joined: number;
+  setMounted: boolean;
   status: "upcoming" | "completed" | "cancelled";
 };
