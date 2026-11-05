@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { MouseEvent } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
@@ -99,7 +98,7 @@ const Navbar = () => {
   const userInitial =
     user?.name?.charAt(0)?.toUpperCase() || "U";
 
-  // Update URL hash and handle section navigation
+  // Update Active Hash
   useEffect(() => {
     const updateHash = () => {
       setActiveHash(window.location.hash);
@@ -109,28 +108,8 @@ const Navbar = () => {
 
     window.addEventListener("hashchange", updateHash);
 
-    let firstFrame = 0;
-    let secondFrame = 0;
-
-    // Scroll to section after navigating to Home page
-    if (pathname === "/" && window.location.hash) {
-      const sectionId = window.location.hash.slice(1);
-
-      firstFrame = requestAnimationFrame(() => {
-        secondFrame = requestAnimationFrame(() => {
-          document.getElementById(sectionId)?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        });
-      });
-    }
-
     return () => {
       window.removeEventListener("hashchange", updateHash);
-
-      cancelAnimationFrame(firstFrame);
-      cancelAnimationFrame(secondFrame);
     };
   }, [pathname]);
 
@@ -158,49 +137,7 @@ const Navbar = () => {
     }
   };
 
-  // Handle Navigation
-  const handleNavigation = (
-    href: string,
-    event?: MouseEvent<HTMLAnchorElement>
-  ) => {
-    setOpen(false);
-
-    // Gallery and About navigation
-    if (href === "/#gallery" || href === "/#about") {
-      event?.preventDefault();
-
-      const sectionId = href.split("#")[1];
-
-      setActiveHash(`#${sectionId}`);
-
-      // Navigate to Home page if currently on another page
-      if (pathname !== "/") {
-        router.push(href);
-        return;
-      }
-
-      // Update URL without reloading the page
-      if (window.location.hash !== `#${sectionId}`) {
-        window.history.pushState(null, "", href);
-      }
-
-      // Scroll to the exact section
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          document.getElementById(sectionId)?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        });
-      });
-
-      return;
-    }
-
-    setActiveHash("");
-  };
-
-  // Check Active Navigation Link
+  // Handle Active Navigation
   const isActive = (href: string) => {
     if (href === "/") {
       return pathname === "/" && activeHash === "";
@@ -255,7 +192,7 @@ const Navbar = () => {
     "text-foreground hover:bg-green-100 hover:text-green-900 dark:hover:bg-green-950 dark:hover:text-green-300";
 
   return (
-    <header className="fixed top-0 left-0 z-50 w-full px-3 pt-3">
+    <header className="fixed left-0 top-0 z-50 w-full px-3 pt-3">
       <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-border/60 bg-background/95 px-4 py-3 text-foreground shadow-lg transition-colors duration-300 sm:px-5">
 
         {/* Logo */}
@@ -280,9 +217,7 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 href={link.href}
-                onClick={(event) =>
-                  handleNavigation(link.href, event)
-                }
+                onClick={() => setOpen(false)}
                 aria-current={active ? "page" : undefined}
                 className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                   active ? activeClass : inactiveClass
@@ -431,9 +366,7 @@ const Navbar = () => {
                     <SheetClose
                       key={link.name}
                       render={<Link href={link.href} />}
-                      onClick={(event) =>
-                        handleNavigation(link.href, event)
-                      }
+                      onClick={() => setOpen(false)}
                       className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                         active ? activeClass : inactiveClass
                       }`}
@@ -496,7 +429,7 @@ const Navbar = () => {
                         <SheetClose
                           key={item.href}
                           render={<Link href={item.href} />}
-                          onClick={() => handleNavigation(item.href)}
+                          onClick={() => setOpen(false)}
                           className={`flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-colors duration-200 ${
                             active ? activeClass : inactiveClass
                           }`}
