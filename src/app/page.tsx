@@ -4,6 +4,7 @@ import RecentEvents from "@/components/home/RecentEvents";
 import GallerySection from "@/components/home/GallerySection";
 import ImpactSection from "@/components/home/ImpactSection";
 import AboutSection from "@/components/home/AboutSection";
+import AuthToast from "@/components/shared/AuthToast";
 
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
         <GallerySection />
         <AboutSection />
         <ImpactSection />
+        <AuthToast />
     
     </>
   );

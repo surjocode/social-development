@@ -1,11 +1,11 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
+
 import EditEventForm from "@/components/events/EditEventForm";
 import DeleteEventDialog from "@/components/events/DeleteEventDialog";
 
@@ -22,12 +22,16 @@ type Event = {
   status: string;
 };
 
-// API URL
+type ApiResponse = {
+  message?: string;
+  error?: string;
+};
+
 const API_URL = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 ).replace(/\/$/, "");
 
-// Format date with short weekday name
+// Format event date
 const formatEventDate = (date: string) => {
   const eventDate = new Date(date);
 
@@ -47,23 +51,26 @@ export default function ManageEventsPage() {
   const { data: session, isPending } = authClient.useSession();
 
   const user = session?.user;
+  const userEmail = user?.email;
 
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (isPending) return;
+  // Fetch events without reloading the entire page
+  const fetchMyEvents = useCallback(
+    async (showLoading = false) => {
+      if (!userEmail) {
+        setEvents([]);
+        setLoading(false);
+        return;
+      }
 
-    if (!user?.email) {
-      setEvents([]);
-      setLoading(false);
-      return;
-    }
-
-    const fetchMyEvents = async () => {
       try {
-        setLoading(true);
+        if (showLoading) {
+          setLoading(true);
+        }
+
         setError("");
 
         // Get JWT token
@@ -76,9 +83,9 @@ export default function ManageEventsPage() {
           );
         }
 
-        // Fetch my created events
+        // Fetch created events
         const response = await fetch(
-          `${API_URL}/my-created-events/${encodeURIComponent(user.email)}`,
+          `${API_URL}/my-created-events/${encodeURIComponent(userEmail)}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -87,10 +94,20 @@ export default function ManageEventsPage() {
           }
         );
 
-        const data = await response.json();
+        const data: Event[] | ApiResponse = await response
+          .json()
+          .catch(() => []);
 
         if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch events");
+          const errorData = data as ApiResponse;
+
+          throw new Error(
+            errorData.message || "Failed to fetch events."
+          );
+        }
+
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid event data received from server.");
         }
 
         setEvents(data);
@@ -103,12 +120,26 @@ export default function ManageEventsPage() {
             : "Failed to load your events."
         );
       } finally {
-        setLoading(false);
+        if (showLoading) {
+          setLoading(false);
+        }
       }
-    };
+    },
+    [userEmail]
+  );
 
-    fetchMyEvents();
-  }, [user?.email, isPending]);
+  // Initial fetch
+  useEffect(() => {
+    if (isPending) return;
+
+    if (!userEmail) {
+      setEvents([]);
+      setLoading(false);
+      return;
+    }
+
+    fetchMyEvents(true);
+  }, [userEmail, isPending, fetchMyEvents]);
 
   // Loading State
   if (isPending || loading) {
@@ -233,6 +264,7 @@ export default function ManageEventsPage() {
                       size={15}
                       className="shrink-0 text-[#11998e] dark:text-emerald-400"
                     />
+
                     <span>{event.location}</span>
                   </div>
 
@@ -261,12 +293,12 @@ export default function ManageEventsPage() {
 
                     <EditEventForm
                       event={event}
-                      onUpdated={() => window.location.reload()}
+                      onUpdated={fetchMyEvents}
                     />
 
                     <DeleteEventDialog
                       event={event}
-                      onDeleted={() => window.location.reload()}
+                      onDeleted={fetchMyEvents}
                     />
                   </div>
                 </div>

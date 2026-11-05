@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -19,13 +18,13 @@ import {
   X,
 } from "lucide-react";
 
+import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const router = useRouter();
 
@@ -42,15 +41,16 @@ export default function RegisterPage() {
     { label: "Minimum 6 characters length", valid: hasMinLength },
   ];
 
+  // Register Handler
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!hasUppercase || !hasLowercase || !hasMinLength) {
+      toast.error("Please fulfill all password requirements.");
       return;
     }
 
     setLoading(true);
-    setErrorMessage("");
 
     try {
       const formData = new FormData(e.currentTarget);
@@ -70,20 +70,25 @@ export default function RegisterPage() {
       });
 
       if (error) {
-        console.log("Register Error:", error);
-        setErrorMessage(
+        console.error("Register Error:", error);
+
+        toast.error(
           error.message || "Registration failed. Please try again."
         );
+
         return;
       }
 
       if (data) {
+        toast.success("Account created successfully! Welcome to Helping Hands.");
+
         router.push("/");
         router.refresh();
       }
     } catch (error) {
       console.error("Registration Failed:", error);
-      setErrorMessage("Something went wrong. Please try again.");
+
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -128,6 +133,7 @@ export default function RegisterPage() {
                 type="text"
                 name="name"
                 placeholder="Tanvir Ahmed"
+                autoComplete="name"
                 required
                 minLength={2}
                 maxLength={100}
@@ -153,6 +159,7 @@ export default function RegisterPage() {
                 type="email"
                 name="email"
                 placeholder="name@example.com"
+                autoComplete="email"
                 required
                 className={inputClasses}
               />
@@ -204,6 +211,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
+                autoComplete="new-password"
                 required
                 minLength={6}
                 className={`${inputClasses} pr-11`}
@@ -231,9 +239,15 @@ export default function RegisterPage() {
                   className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400"
                 >
                   {item.valid ? (
-                    <Check size={12} className="text-teal-600 dark:text-emerald-400" />
+                    <Check
+                      size={12}
+                      className="text-teal-600 dark:text-emerald-400"
+                    />
                   ) : (
-                    <X size={12} className="text-gray-400 dark:text-gray-600" />
+                    <X
+                      size={12}
+                      className="text-gray-400 dark:text-gray-600"
+                    />
                   )}
 
                   <span
@@ -250,13 +264,6 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Error Message */}
-          {errorMessage && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:border dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-400">
-              {errorMessage}
-            </p>
-          )}
-
           {/* Register Button */}
           <button
             type="submit"
@@ -269,6 +276,7 @@ export default function RegisterPage() {
             className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-teal-600 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-700 dark:shadow-emerald-900/20 dark:hover:bg-emerald-600"
           >
             {loading ? "Creating Account..." : "Register"}
+
             {!loading && <ArrowRight size={16} />}
           </button>
         </form>
@@ -276,6 +284,7 @@ export default function RegisterPage() {
         {/* Login Link */}
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
           Already have an account?{" "}
+
           <Link
             href="/login"
             className="font-semibold text-teal-600 transition hover:text-teal-700 dark:text-emerald-400 dark:hover:text-emerald-300"

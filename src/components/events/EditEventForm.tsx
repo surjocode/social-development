@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 
 type Event = {
   _id: string;
@@ -20,11 +23,17 @@ type Event = {
   location: string;
   image: string;
   description: string;
+  
 };
 
 type EditEventFormProps = {
   event: Event;
   onUpdated?: () => void;
+};
+
+type ApiResponse = {
+  message?: string;
+  error?: string;
 };
 
 const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
@@ -39,6 +48,18 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
     image: event.image || "",
     description: event.description || "",
   });
+
+  // Update form values when selected event changes
+  useEffect(() => {
+    setFormData({
+      title: event.title || "",
+      category: event.category || "",
+      eventDate: event.eventDate?.slice(0, 10) || "",
+      location: event.location || "",
+      image: event.image || "",
+      description: event.description || "",
+    });
+  }, [event]);
 
   const handleChange = (
     e: ChangeEvent<
@@ -71,11 +92,12 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
         );
       }
 
-      // Send PATCH request with JWT
+      // API URL
       const API_URL = (
         process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       ).replace(/\/$/, "");
 
+      // Send PATCH request
       const response = await fetch(
         `${API_URL}/dashboard/update-event/${event._id}`,
         {
@@ -88,25 +110,44 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
         }
       );
 
-      const data = await response.json();
+      // Safely parse API response
+      const data: ApiResponse = await response
+        .json()
+        .catch(() => ({} as ApiResponse));
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to update event"
+          data.message ||
+            data.error ||
+            "Failed to update event. Please try again."
         );
       }
 
-      alert("Event updated successfully!");
+      // Show success toast before closing dialog
+      toast.success("Event updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        toastId: `update-success-${event._id}`,
+      });
 
+      // Close dialog
       setOpen(false);
+
+      // Refresh event list without reloading the page
       onUpdated?.();
+
     } catch (error) {
       console.error("Update event error:", error);
 
-      alert(
+      toast.error(
         error instanceof Error
           ? error.message
-          : "Something went wrong"
+          : "Something went wrong. Please try again.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          toastId: `update-error-${event._id}`,
+        }
       );
     } finally {
       setLoading(false);
@@ -128,6 +169,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
           stroke="currentColor"
           strokeWidth="2"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -152,9 +194,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div>
-            <label className={labelClasses}>
-              Title
-            </label>
+            <label className={labelClasses}>Title</label>
 
             <input
               type="text"
@@ -169,9 +209,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
           {/* Category and Date */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className={labelClasses}>
-                Event Type
-              </label>
+              <label className={labelClasses}>Event Type</label>
 
               <select
                 name="category"
@@ -191,15 +229,14 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
             </div>
 
             <div>
-              <label className={labelClasses}>
-                Event Date
-              </label>
+              <label className={labelClasses}>Event Date</label>
 
               <input
                 type="date"
                 name="eventDate"
                 value={formData.eventDate}
                 onChange={handleChange}
+                min={new Date().toISOString().slice(0, 10)}
                 required
                 className={inputClasses}
               />
@@ -208,9 +245,7 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
 
           {/* Location */}
           <div>
-            <label className={labelClasses}>
-              Location
-            </label>
+            <label className={labelClasses}>Location</label>
 
             <input
               type="text"
@@ -229,19 +264,18 @@ const EditEventForm = ({ event, onUpdated }: EditEventFormProps) => {
             </label>
 
             <input
-              type="text"
+              type="url"
               name="image"
               value={formData.image}
               onChange={handleChange}
+              placeholder="https://example.com/image.jpg"
               className={inputClasses}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className={labelClasses}>
-              Description
-            </label>
+            <label className={labelClasses}>Description</label>
 
             <textarea
               name="description"

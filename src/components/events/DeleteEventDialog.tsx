@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -11,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 
 type DeleteEventDialogProps = {
   event: {
@@ -59,25 +59,38 @@ const DeleteEventDialog = ({
         }
       );
 
-      const data = await response.json();
+      // Safely parse API response
+      const data: { message?: string } = await response
+        .json()
+        .catch(() => ({} as { message?: string }));
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to delete event"
-        );
+        throw new Error(data.message || "Failed to delete event.");
       }
 
-      alert("Event deleted successfully!");
+      // Show success toast
+      toast.success("Event deleted successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        toastId: `delete-success-${event._id}`,
+      });
 
       setOpen(false);
+
+      // Refresh event list without reloading the page
       onDeleted?.();
     } catch (error) {
       console.error("Delete event error:", error);
 
-      alert(
+      toast.error(
         error instanceof Error
           ? error.message
-          : "Something went wrong"
+          : "Something went wrong. Please try again.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          toastId: `delete-error-${event._id}`,
+        }
       );
     } finally {
       setLoading(false);

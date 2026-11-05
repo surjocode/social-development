@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, HeartHandshake } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 type JoinEventButtonProps = {
   eventId: string;
@@ -16,22 +17,26 @@ type JoinedEvent = {
   _id: string;
 };
 
-type JoinedEventsResponse = {
+type ApiResponse = {
   result?: JoinedEvent[];
   events?: JoinedEvent[];
   message?: string;
 };
+
+type ApiData = ApiResponse | JoinedEvent[];
 
 const API_URL = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 ).replace(/\/$/, "");
 
 // Safely parse backend response
-const getResponseData = async (response: Response) => {
+const getResponseData = async (
+  response: Response
+): Promise<ApiData> => {
   const text = await response.text();
 
   try {
-    return text ? JSON.parse(text) : {};
+    return text ? (JSON.parse(text) as ApiData) : {};
   } catch {
     console.error("Invalid API response:", {
       status: response.status,
@@ -40,9 +45,17 @@ const getResponseData = async (response: Response) => {
     });
 
     throw new Error(
-      `Backend returned HTML or invalid JSON. Status: ${response.status}. Check the API route.`
+      `Backend returned invalid JSON. Status: ${response.status}. Check the API route.`
     );
   }
+};
+
+const getErrorMessage = (data: ApiData) => {
+  if (!Array.isArray(data)) {
+    return data.message || "Something went wrong.";
+  }
+
+  return "Something went wrong.";
 };
 
 const JoinEventButton = ({
@@ -51,13 +64,13 @@ const JoinEventButton = ({
   status,
 }: JoinEventButtonProps) => {
   const router = useRouter();
+
   const { data: session, isPending } = authClient.useSession();
 
   const user = session?.user;
 
   const [isJoined, setIsJoined] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState("");
 
   const isCreator =
     !!user?.email &&
@@ -97,12 +110,9 @@ const JoinEventButton = ({
         const data = await getResponseData(response);
 
         if (!response.ok) {
-          throw new Error(
-            data.message || "Failed to check joined status"
-          );
+          throw new Error(getErrorMessage(data));
         }
 
-        // Support both array and object responses
         const joinedEvents: JoinedEvent[] = Array.isArray(data)
           ? data
           : data.result || data.events || [];
@@ -115,7 +125,7 @@ const JoinEventButton = ({
       } catch (error) {
         console.error("Check joined status error:", error);
 
-        setMessage(
+        toast.error(
           error instanceof Error
             ? error.message
             : "Could not check your join status."
@@ -128,21 +138,21 @@ const JoinEventButton = ({
     checkJoinedStatus();
   }, [eventId, user?.email, isPending, isCreator]);
 
+  // Join or Leave Event
   const handleJoinToggle = async () => {
     if (!user?.email) {
-      setMessage("Please login first to join this event.");
+      toast.info("Please login first to join this event.");
       return;
     }
 
     if (isCreator) {
-      setMessage("You cannot join your own event.");
+      toast.warning("You cannot join your own event.");
       return;
     }
 
     if (isLoading) return;
 
     setIsLoading(true);
-    setMessage("");
 
     try {
       const tokenData = await authClient.token();
@@ -173,34 +183,34 @@ const JoinEventButton = ({
       const result = await getResponseData(response);
 
       if (!response.ok) {
-        throw new Error(
-          result.message || "Something went wrong"
-        );
+        throw new Error(getErrorMessage(result));
       }
 
+      // Update joined status
       setIsJoined(!isJoined);
 
-      setMessage(
-        isJoined
-          ? "You have left this event."
-          : "Successfully joined this event!"
-      );
+      // Success Toast
+      if (isJoined) {
+        toast.success("You have successfully left this event.");
+      } else {
+        toast.success("Congratulations! You have joined this event.");
+      }
 
       router.refresh();
     } catch (error) {
       console.error("Join/Leave event error:", error);
 
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
-          : "Something went wrong"
+          : "Something went wrong. Please try again."
       );
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Show Completed button for completed events
+  // Completed Event
   if (status?.toLowerCase() === "completed") {
     return (
       <button
@@ -214,6 +224,7 @@ const JoinEventButton = ({
     );
   }
 
+  // Loading State
   if (isPending || isLoading) {
     return (
       <button
@@ -226,37 +237,30 @@ const JoinEventButton = ({
     );
   }
 
+  // Event Creator
   if (isCreator) {
     return (
-      <div className="text-sm font-semibold text-teal-700">
+      <div className="text-sm font-semibold text-teal-700 dark:text-teal-400">
         You created this event
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <button
-        type="button"
-        onClick={handleJoinToggle}
-        disabled={isLoading}
-        className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0ca58e] to-[#11998e] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:from-[#087f75] hover:to-[#087f75] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isJoined ? (
-          <CheckCircle2 size={19} />
-        ) : (
-          <HeartHandshake size={19} />
-        )}
-
-        {isJoined ? "Joined (Click to Leave)" : "Join Event"}
-      </button>
-
-      {message && (
-        <p className="text-xs text-gray-500" role="status">
-          {message}
-        </p>
+    <button
+      type="button"
+      onClick={handleJoinToggle}
+      disabled={isLoading}
+      className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0ca58e] to-[#11998e] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:from-[#087f75] hover:to-[#087f75] disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {isJoined ? (
+        <CheckCircle2 size={19} />
+      ) : (
+        <HeartHandshake size={19} />
       )}
-    </div>
+
+      {isJoined ? "Joined (Click to Leave)" : "Join Event"}
+    </button>
   );
 };
 

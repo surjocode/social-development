@@ -105,7 +105,7 @@ social-development/
 ### 1. Clone the Repository
 
 ```bash
-git https://github.com/surjocode/social-development-server
+https://github.com/surjocode/social-development-server
 ```
 
 ### 2. Navigate to the Project

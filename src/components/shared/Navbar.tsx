@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 
 import {
   Home,
@@ -94,8 +95,7 @@ const Navbar = () => {
 
   const user = session?.user;
 
-  const userInitial =
-    user?.name?.charAt(0)?.toUpperCase() || "U";
+  const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
 
   // Update URL hash after navigation
   useEffect(() => {
@@ -112,17 +112,22 @@ const Navbar = () => {
     };
   }, [pathname]);
 
-  // Handle logout
+  // Handle Logout
   const handleLogout = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          setOpen(false);
-          router.push("/");
-          router.refresh();
-        },
-      },
-    });
+    try {
+      await authClient.signOut();
+
+      setOpen(false);
+
+      toast.success("Logged out successfully!");
+
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout Error:", error);
+
+      toast.error("Logout failed. Please try again.");
+    }
   };
 
   // Handle navigation clicks
@@ -152,10 +157,7 @@ const Navbar = () => {
       return pathname === "/" && activeHash === "#about";
     }
 
-    return (
-      pathname === href ||
-      pathname.startsWith(`${href}/`)
-    );
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   // Reusable Logo Component
@@ -199,7 +201,10 @@ const Navbar = () => {
         {/* Logo */}
         <Link
           href="/"
-          onClick={() => setActiveHash("")}
+          onClick={() => {
+            setActiveHash("");
+            setOpen(false);
+          }}
           className="group flex items-center"
         >
           <Logo />
@@ -273,9 +278,7 @@ const Navbar = () => {
                 className="w-56 border-border bg-popover text-popover-foreground"
               >
                 <DropdownMenuLabel>
-                  <p className="font-semibold">
-                    {user.name}
-                  </p>
+                  <p className="font-semibold">{user.name}</p>
 
                   <p className="text-xs font-normal text-muted-foreground">
                     {user.email}
@@ -323,7 +326,6 @@ const Navbar = () => {
           <ThemeToggle />
 
           <Sheet open={open} onOpenChange={setOpen}>
-            {/* Base UI SheetTrigger: render prop */}
             <SheetTrigger
               render={
                 <Button
