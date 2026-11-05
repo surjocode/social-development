@@ -1,13 +1,17 @@
-
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
+
 import { Josefin_Sans, Geist } from "next/font/google";
+
 import "./globals.css";
 
 import { cn } from "@/lib/utils";
+
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 
 import { Toaster } from "@/components/ui/sonner";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -39,7 +43,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html
@@ -51,7 +55,7 @@ export default function RootLayout({
         "antialiased"
       )}
     >
-      <body className="min-h-screen flex flex-col font-sans">
+      <body className="flex min-h-screen flex-col font-sans">
         <ThemeProvider>
           <Navbar />
 

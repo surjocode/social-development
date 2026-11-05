@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { MouseEvent } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
@@ -95,9 +96,10 @@ const Navbar = () => {
 
   const user = session?.user;
 
-  const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
+  const userInitial =
+    user?.name?.charAt(0)?.toUpperCase() || "U";
 
-  // Update URL hash after navigation
+  // Update URL hash and handle section navigation
   useEffect(() => {
     const updateHash = () => {
       setActiveHash(window.location.hash);
@@ -107,8 +109,28 @@ const Navbar = () => {
 
     window.addEventListener("hashchange", updateHash);
 
+    let firstFrame = 0;
+    let secondFrame = 0;
+
+    // Scroll to section after navigating to Home page
+    if (pathname === "/" && window.location.hash) {
+      const sectionId = window.location.hash.slice(1);
+
+      firstFrame = requestAnimationFrame(() => {
+        secondFrame = requestAnimationFrame(() => {
+          document.getElementById(sectionId)?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      });
+    }
+
     return () => {
       window.removeEventListener("hashchange", updateHash);
+
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
     };
   }, [pathname]);
 
@@ -119,31 +141,66 @@ const Navbar = () => {
 
       setOpen(false);
 
-      toast.success("Logged out successfully!");
+      toast.success("Logged out successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
 
       router.push("/");
       router.refresh();
     } catch (error) {
       console.error("Logout Error:", error);
 
-      toast.error("Logout failed. Please try again.");
+      toast.error("Logout failed. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
 
-  // Handle navigation clicks
-  const handleNavigation = (href: string) => {
-    if (href === "/#gallery") {
-      setActiveHash("#gallery");
-    } else if (href === "/#about") {
-      setActiveHash("#about");
-    } else {
-      setActiveHash("");
-    }
-
+  // Handle Navigation
+  const handleNavigation = (
+    href: string,
+    event?: MouseEvent<HTMLAnchorElement>
+  ) => {
     setOpen(false);
+
+    // Gallery and About navigation
+    if (href === "/#gallery" || href === "/#about") {
+      event?.preventDefault();
+
+      const sectionId = href.split("#")[1];
+
+      setActiveHash(`#${sectionId}`);
+
+      // Navigate to Home page if currently on another page
+      if (pathname !== "/") {
+        router.push(href);
+        return;
+      }
+
+      // Update URL without reloading the page
+      if (window.location.hash !== `#${sectionId}`) {
+        window.history.pushState(null, "", href);
+      }
+
+      // Scroll to the exact section
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.getElementById(sectionId)?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      });
+
+      return;
+    }
+
+    setActiveHash("");
   };
 
-  // Check active navigation link
+  // Check Active Navigation Link
   const isActive = (href: string) => {
     if (href === "/") {
       return pathname === "/" && activeHash === "";
@@ -157,13 +214,16 @@ const Navbar = () => {
       return pathname === "/" && activeHash === "#about";
     }
 
-    return pathname === href || pathname.startsWith(`${href}/`);
+    return (
+      pathname === href ||
+      pathname.startsWith(`${href}/`)
+    );
   };
 
   // Reusable Logo Component
   const Logo = () => (
     <div className="flex items-center gap-2.5">
-      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-green-100 transition-all duration-300 group-hover:scale-105 dark:bg-white dark:ring-green-200">
+      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-green-100 transition-transform duration-300 group-hover:scale-105 dark:bg-white dark:ring-green-200">
         <Image
           src="/images/Logo.png"
           alt="Helping Hands Logo"
@@ -195,8 +255,8 @@ const Navbar = () => {
     "text-foreground hover:bg-green-100 hover:text-green-900 dark:hover:bg-green-950 dark:hover:text-green-300";
 
   return (
-    <header className="fixed top-0 z-50 w-full px-3 pt-3">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-border/60 bg-background/90 px-4 py-3 text-foreground shadow-lg backdrop-blur-xl transition-colors duration-300 sm:px-5">
+    <header className="fixed top-0 left-0 z-50 w-full px-3 pt-3">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-border/60 bg-background/95 px-4 py-3 text-foreground shadow-lg transition-colors duration-300 sm:px-5">
 
         {/* Logo */}
         <Link
@@ -220,9 +280,11 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 href={link.href}
-                onClick={() => handleNavigation(link.href)}
+                onClick={(event) =>
+                  handleNavigation(link.href, event)
+                }
                 aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                   active ? activeClass : inactiveClass
                 }`}
               >
@@ -278,7 +340,9 @@ const Navbar = () => {
                 className="w-56 border-border bg-popover text-popover-foreground"
               >
                 <DropdownMenuLabel>
-                  <p className="font-semibold">{user.name}</p>
+                  <p className="font-semibold">
+                    {user.name}
+                  </p>
 
                   <p className="text-xs font-normal text-muted-foreground">
                     {user.email}
@@ -331,6 +395,7 @@ const Navbar = () => {
                 <Button
                   variant="outline"
                   size="icon"
+                  aria-label="Open navigation menu"
                   className="rounded-full border-border bg-background text-foreground hover:bg-accent"
                 />
               }
@@ -366,8 +431,10 @@ const Navbar = () => {
                     <SheetClose
                       key={link.name}
                       render={<Link href={link.href} />}
-                      onClick={() => handleNavigation(link.href)}
-                      className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                      onClick={(event) =>
+                        handleNavigation(link.href, event)
+                      }
+                      className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                         active ? activeClass : inactiveClass
                       }`}
                     >
@@ -430,7 +497,7 @@ const Navbar = () => {
                           key={item.href}
                           render={<Link href={item.href} />}
                           onClick={() => handleNavigation(item.href)}
-                          className={`flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-all duration-200 ${
+                          className={`flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-colors duration-200 ${
                             active ? activeClass : inactiveClass
                           }`}
                         >
